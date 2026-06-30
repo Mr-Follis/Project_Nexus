@@ -4,13 +4,14 @@
 
 Current repository state:
 
-- Project type: planning and documentation suite for Project Nexus.
+- Project type: Sprint 1 foundation app plus planning and documentation suite for Project Nexus.
 - Runtime declared by Replit: Node.js 20.
 - Nix dependencies: `unzip` only.
-- Application code: not created yet.
-- Package manifests: none found yet (`package.json`, lockfiles, Python manifests, Makefile, and similar command files are not present).
+- Application code: Next.js App Router foundation.
+- Package manifest: `package.json`.
 - API contract: OpenAPI draft at `10_API/openapi.yaml`.
 - Data/schema planning: SQL draft at `04_Data_Knowledge_Graph/Database_Schema.sql`.
+- Database starter: Drizzle schema at `db/schema.ts` with generated migrations in `db/migrations/`.
 - Diagrams: Mermaid files in `11_Diagrams/`.
 
 Planned MVP stack from the architecture docs:
@@ -46,6 +47,14 @@ Planned MVP stack from the architecture docs:
 ├── 10_API/                     # OpenAPI specification
 ├── 11_Diagrams/                # Mermaid architecture and workflow diagrams
 ├── 12_Sources/                 # Research sources
+├── app/                        # Next.js App Router routes and metadata files
+├── components/                 # Reusable UI, layout, cards, motion placeholders
+├── db/                         # Drizzle schema and future migrations
+├── docs/                       # Implementation-facing docs created during buildout
+├── lib/                        # Config, db client, SEO helpers, utilities
+├── public/                     # Static assets
+├── styles/                     # Global Tailwind CSS and design tokens
+├── types/                      # Shared TypeScript types
 ├── AGENTS.md                   # Agent working rules and repo map
 ├── CONTEXT.md                  # Current working context and checkpoint
 ├── ROADMAP.md                  # Working roadmap for ongoing implementation
@@ -59,14 +68,17 @@ Planned MVP stack from the architecture docs:
 
 ## Commands
 
-No application package or scripts exist yet, so these commands are intentionally placeholders until the app shell is created.
-
-- Dev: not defined yet. Expected future command: `npm run dev`.
-- Test: not defined yet. Expected future command: `npm test` or `npm run test`.
-- Lint: not defined yet. Expected future command: `npm run lint`.
-- Build: not defined yet. Expected future command: `npm run build`.
-
-When a `package.json` is added, update this section with the exact scripts from that file.
+- Install: `npm install`
+- Dev: `npm run dev`
+- Test: `npm run test`
+- Typecheck: `npm run typecheck`
+- Lint: `npm run lint`
+- Format check: `npm run format`
+- Build: `npm run build`
+- Generate DB migration: `npm run db:generate`
+- Apply DB migration: `npm run db:migrate`
+- Seed foundation records: `npm run db:seed`
+- Open Drizzle Studio: `npm run db:studio`
 
 Useful current checks:
 
@@ -81,7 +93,9 @@ Useful current checks:
 - Keep the architecture multi-game by default; GTA VI is the first target, not a hardcoded product boundary.
 - Public factual content should be sourced, verified, and marked with status.
 - AI-generated or AI-assisted public facts require admin review before publishing.
-- For future TypeScript app work, prefer typed schemas, clear module boundaries, environment-based configuration, and tests around core logic.
+- Prefer typed schemas, clear module boundaries, environment-based configuration, and tests around core logic.
+- Database work must remain provider-neutral PostgreSQL unless a later product decision chooses Supabase- or Neon-specific services.
+- Seed scripts must not insert unverified gameplay facts. Foundation seeds may create draft game/source records only.
 
 ## Hard Rules
 

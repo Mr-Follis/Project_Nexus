@@ -27,7 +27,6 @@ Project_Nexus_Documentation_Suite_v0_1/
 └── 12_Sources/
 ```
 
-
 ## Replit/Codex build start
 
 If using Replit and Codex, start with:
@@ -76,3 +75,100 @@ This pack intentionally prioritises a practical MVP over fantasy features. The l
 ## Key build decision
 
 Nexus should feel like a premium product, not a gaming blog. Mobile-first, second-screen usage, modern motion, fast search, and a calm interface are product requirements, not polish.
+
+## Sprint 1 Foundation App
+
+This repository now includes the Sprint 1 foundation for the Project Nexus app:
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS design tokens
+- Mobile-first dark UI shell
+- Placeholder public routes
+- Admin placeholder route
+- Motion-ready component structure
+- Drizzle/PostgreSQL-ready schema starter
+- Drizzle migration baseline and database health check
+- Environment variable template
+- Basic sitemap, robots, and metadata structure
+
+Sprint 1 intentionally does not implement live AI, a full map, search indexing, CMS CRUD, community submissions, or real GTA VI factual data.
+
+## Run In Replit
+
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Add Replit Secrets when database work begins:
+
+   ```text
+   DATABASE_URL
+   NEXT_PUBLIC_SITE_URL
+   NEXT_PUBLIC_SITE_NAME
+   ```
+
+   `DATABASE_URL` is optional for the placeholder UI. It is required before using the database client or migrations.
+
+3. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+4. Open the Replit web preview. The dev server binds to `0.0.0.0` for Replit.
+
+## Available Scripts
+
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run typecheck
+npm run format
+npm run test
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+npm run db:studio
+```
+
+`npm run test` currently runs typecheck and lint because no unit test suite exists yet.
+
+## Database
+
+The database foundation is provider-neutral PostgreSQL using Drizzle. Set `DATABASE_URL` in Replit Secrets before running migrations or using database-backed routes.
+
+Useful commands:
+
+```bash
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+npm run db:studio
+```
+
+The safe health route is available at:
+
+```text
+/api/health/db
+/api/health/knowledge
+```
+
+If `DATABASE_URL` is missing, it reports `configured: false` without crashing the placeholder app.
+
+`npm run db:seed` creates only foundation records: a draft `gta-6` game row and official source records. It does not seed gameplay facts, stats, locations, or AI content.
+
+## Sprint 1 Routes
+
+- `/`
+- `/gta-6`
+- `/gta-6/map`
+- `/gta-6/vehicles`
+- `/gta-6/weapons`
+- `/gta-6/missions`
+- `/gta-6/ask`
+- `/admin`

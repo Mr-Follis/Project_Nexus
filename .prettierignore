@@ -1,0 +1,26 @@
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+package-lock.json
+
+# Original planning/documentation pack. Keep source formatting stable unless intentionally editing docs.
+00_Vision/
+01_Product/
+02_Design_Experience/
+03_Technical_Architecture/
+04_Data_Knowledge_Graph/
+05_AI_Automation/
+06_SEO_Growth/
+07_Business/
+08_Launch/
+09_Development/
+10_API/
+11_Diagrams/
+12_Sources/
+Project_Nexus_Master_Document.md
+START_HERE_FOR_REPLIT_CODEX.md
+CODEX_BOOTSTRAP_PROMPT.md
+zipFile.zip

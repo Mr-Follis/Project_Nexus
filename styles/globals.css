@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg-base: 8 10 15;
+  --color-bg-surface: 16 19 27;
+  --color-bg-elevated: 23 27 38;
+  --color-text-primary: 245 247 250;
+  --color-text-secondary: 170 178 192;
+  --color-text-muted: 112 122 140;
+  --color-accent-primary: 124 92 255;
+  --color-accent-secondary: 54 209 220;
+  --color-status-success: 49 214 123;
+  --color-status-warning: 245 184 75;
+  --color-status-danger: 255 92 122;
+  --radius-nexus: 8px;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --duration-fast: 160ms;
+  --duration-medium: 280ms;
+  --duration-slow: 520ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: rgb(var(--color-bg-base));
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  background:
+    linear-gradient(180deg, rgba(124, 92, 255, 0.08), transparent 28rem),
+    rgb(var(--color-bg-base));
+  color: rgb(var(--color-text-primary));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgb(var(--color-accent-primary) / 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
