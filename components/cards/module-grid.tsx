@@ -19,7 +19,8 @@ export function ModuleGrid({ modules }: { modules: Module[] }) {
 
         return (
           <Link key={module.href} href={module.href} className="group block">
-            <Card className="h-full transition duration-200 ease-standard group-hover:-translate-y-1 group-hover:border-accent-secondary/50">
+            <Card className="h-full overflow-hidden transition duration-200 ease-standard group-hover:-translate-y-1 group-hover:border-accent-secondary/50">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent-secondary/80 via-status-warning/70 to-accent-primary/70" />
               <div className="flex items-start justify-between gap-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-nexus bg-white/[0.08]">
                   <Icon

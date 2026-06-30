@@ -1,12 +1,14 @@
 import { Crosshair } from "lucide-react";
 
-import { PlaceholderPanel } from "@/components/layout/placeholder-panel";
+import { EntityCategoryPage } from "@/components/knowledge/entity-category-page";
 
 export default function GtaSixWeaponsPage() {
   return (
-    <PlaceholderPanel
+    <EntityCategoryPage
+      gameSlug="gta-6"
+      entityType="weapon"
       icon={Crosshair}
-      label="Entity placeholder"
+      label="Entity category"
       title="Weapons"
       description="Database-ready placeholder for weapon records, unlock conditions, attachments, source status, related missions, and map marker links."
     />

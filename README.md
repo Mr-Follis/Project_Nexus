@@ -84,13 +84,24 @@ This repository now includes the Sprint 1 foundation for the Project Nexus app:
 - TypeScript
 - Tailwind CSS design tokens
 - Mobile-first dark UI shell
-- Placeholder public routes
+- Placeholder and database-aware public routes
 - Admin placeholder route
 - Motion-ready component structure
 - Drizzle/PostgreSQL-ready schema starter
 - Drizzle migration baseline and database health check
 - Environment variable template
 - Basic sitemap, robots, and metadata structure
+- Published-record rendering shell for vehicle, weapon, and mission category pages
+- Public entity detail route for published knowledge records
+- Source attribution section for public entity detail records
+- Last-updated metadata display for public knowledge records
+- Public search API fallback for published entity records
+- Public search page for the GTA VI hub
+- Public map marker API and database-aware map shell
+- Public community submission API for moderation intake
+- Public community submission form for the GTA VI hub
+- OpenAPI draft aligned with implemented Next API routes
+- Image-backed home and GTA VI hub heroes using an original generated backdrop
 
 Sprint 1 intentionally does not implement live AI, a full map, search indexing, CMS CRUD, community submissions, or real GTA VI factual data.
 
@@ -129,14 +140,18 @@ npm run start
 npm run lint
 npm run typecheck
 npm run format
+npm run test:unit
 npm run test
+npm run validate
 npm run db:generate
 npm run db:migrate
 npm run db:seed
 npm run db:studio
 ```
 
-`npm run test` currently runs typecheck and lint because no unit test suite exists yet.
+`npm run test:unit` runs the Vitest unit suite.
+`npm run test` runs unit tests, typecheck, and lint.
+`npm run validate` runs format check, test, and production build. GitHub Actions runs the same validation on pushes to `main` and on pull requests.
 
 ## Database
 
@@ -160,6 +175,22 @@ The safe health route is available at:
 
 If `DATABASE_URL` is missing, it reports `configured: false` without crashing the placeholder app.
 
+The first public read APIs are available at:
+
+```text
+/api/games
+/api/games/[gameSlug]
+/api/games/[gameSlug]/entities
+/api/games/[gameSlug]/entities/[entitySlug]
+/api/games/[gameSlug]/map/markers
+/api/search?q=vehicle&game=gta-6
+/api/submissions
+```
+
+They return only published records and safely report `configured: false` when `DATABASE_URL` is missing. Search uses PostgreSQL matching as the MVP fallback until a dedicated search provider is selected.
+
+`POST /api/submissions` creates `new` moderation records only. It does not publish submitted content.
+
 `npm run db:seed` creates only foundation records: a draft `gta-6` game row and official source records. It does not seed gameplay facts, stats, locations, or AI content.
 
 ## Sprint 1 Routes
@@ -170,5 +201,8 @@ If `DATABASE_URL` is missing, it reports `configured: false` without crashing th
 - `/gta-6/vehicles`
 - `/gta-6/weapons`
 - `/gta-6/missions`
+- `/gta-6/entities/[entitySlug]`
+- `/gta-6/search`
+- `/gta-6/submit`
 - `/gta-6/ask`
 - `/admin`

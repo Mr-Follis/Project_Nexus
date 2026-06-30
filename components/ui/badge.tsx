@@ -10,7 +10,7 @@ export function Badge({ className, tone = "default", ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]",
+        "inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase",
         tone === "default" &&
           "border-white/10 bg-white/[0.08] text-text-secondary",
         tone === "accent" &&

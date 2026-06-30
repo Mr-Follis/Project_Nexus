@@ -1,12 +1,14 @@
 import { Route } from "lucide-react";
 
-import { PlaceholderPanel } from "@/components/layout/placeholder-panel";
+import { EntityCategoryPage } from "@/components/knowledge/entity-category-page";
 
 export default function GtaSixMissionsPage() {
   return (
-    <PlaceholderPanel
+    <EntityCategoryPage
+      gameSlug="gta-6"
+      entityType="mission"
       icon={Route}
-      label="Guide placeholder"
+      label="Guide category"
       title="Missions"
       description="Mission route prepared for future database-backed guides, spoiler controls, objectives, rewards, recommended loadouts, and related map pins."
     />

@@ -2,29 +2,44 @@ openapi: 3.1.0
 info:
   title: Project Nexus API
   version: 0.1.0
-  description: Initial API contract for Project Nexus MVP.
+  description: Initial API contract for the Project Nexus MVP.
 servers:
-  - url: https://api.example.com
+  - url: https://example.com
 paths:
-  /games:
+  /api/health/db:
+    get:
+      summary: Check database connectivity
+      responses:
+        "200":
+          description: Database is connected or not configured.
+        "503":
+          description: Database is configured but unreachable.
+  /api/health/knowledge:
+    get:
+      summary: Get knowledge table counts
+      responses:
+        "200":
+          description: Knowledge counts or not-configured response.
+  /api/games:
     get:
       summary: List published games
       responses:
-        '200':
-          description: Games list
-  /games/{gameSlug}:
+        "200":
+          description: Published games list or not-configured response.
+  /api/games/{gameSlug}:
     get:
-      summary: Get game hub data
+      summary: Get published game hub data
       parameters:
         - name: gameSlug
           in: path
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Game details }
-  /games/{gameSlug}/entities:
+        "200": { description: Published game details }
+        "404": { description: Game not found }
+  /api/games/{gameSlug}/entities:
     get:
-      summary: List entities for a game
+      summary: List published entities for a game
       parameters:
         - name: gameSlug
           in: path
@@ -32,15 +47,14 @@ paths:
           schema: { type: string }
         - name: type
           in: query
-          schema: { type: string }
-        - name: q
-          in: query
-          schema: { type: string }
+          schema: { $ref: "#/components/schemas/EntityType" }
       responses:
-        '200': { description: Entity list }
-  /games/{gameSlug}/entities/{entitySlug}:
+        "200": { description: Published entity list }
+        "400": { description: Invalid entity type }
+        "404": { description: Game not found }
+  /api/games/{gameSlug}/entities/{entitySlug}:
     get:
-      summary: Get entity detail
+      summary: Get published entity detail
       parameters:
         - name: gameSlug
           in: path
@@ -51,10 +65,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Entity detail }
-  /games/{gameSlug}/map/markers:
+        "200": { description: Published entity detail with linked sources }
+        "404": { description: Game or entity not found }
+  /api/games/{gameSlug}/map/markers:
     get:
-      summary: Get map markers
+      summary: Get published map markers
       parameters:
         - name: gameSlug
           in: path
@@ -63,27 +78,45 @@ paths:
         - name: markerType
           in: query
           schema: { type: string }
-        - name: region
-          in: query
-          schema: { type: string }
       responses:
-        '200': { description: Marker list }
-  /search:
+        "200": { description: Published marker list }
+        "400": { description: Invalid marker request }
+        "404": { description: Game not found }
+  /api/search:
     get:
-      summary: Search Nexus
+      summary: Search published entities
       parameters:
-        - name: game
-          in: query
-          schema: { type: string }
         - name: q
           in: query
           required: true
+          schema: { type: string, minLength: 2, maxLength: 120 }
+        - name: game
+          in: query
           schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
       responses:
-        '200': { description: Search results }
-  /assistant/ask:
+        "200": { description: Search results }
+        "400": { description: Invalid search request }
+        "404": { description: Game not found }
+  /api/submissions:
     post:
-      summary: Ask Nexus assistant
+      summary: Create community submission for moderation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmissionInput"
+      responses:
+        "201": { description: Submission created with new moderation status }
+        "400": { description: Invalid submission }
+        "404": { description: Game not found }
+        "503": { description: Database not configured }
+  /api/assistant/ask:
+    post:
+      summary: Future Nexus assistant endpoint
       requestBody:
         required: true
         content:
@@ -97,28 +130,45 @@ paths:
                 userContext: { type: object }
               required: [gameSlug, question]
       responses:
-        '200': { description: Structured AI answer }
-  /submissions:
-    post:
-      summary: Create community submission
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                gameSlug: { type: string }
-                type: { type: string }
-                title: { type: string }
-                description: { type: string }
-                evidenceUrl: { type: string }
-                marker: { type: object }
-              required: [gameSlug, type, title]
-      responses:
-        '201': { description: Submission created }
+        "200": { description: Future structured AI answer }
 components:
   schemas:
+    EntityType:
+      type: string
+      enum:
+        - region
+        - vehicle
+        - weapon
+        - mission
+        - character
+        - business
+        - property
+        - shop
+        - collectible
+        - achievement
+        - activity
+        - faction
+        - animal
+        - patch_note
+        - guide
+        - other
     VerificationStatus:
       type: string
-      enum: [confirmed_official, confirmed_gameplay, community_verified, likely, speculative, outdated, rejected]
+      enum:
+        - confirmed_official
+        - confirmed_gameplay
+        - community_verified
+        - likely
+        - speculative
+        - outdated
+        - rejected
+    SubmissionInput:
+      type: object
+      properties:
+        gameSlug: { type: string, minLength: 1, maxLength: 120 }
+        type: { type: string, minLength: 1, maxLength: 80 }
+        title: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, maxLength: 4000 }
+        evidenceUrl: { type: string, format: uri }
+        screenshotUrl: { type: string, format: uri }
+      required: [gameSlug, type, title]

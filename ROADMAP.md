@@ -21,6 +21,22 @@ Completed foundation items:
 - Placeholder public/admin routes.
 - Drizzle schema and initial migration baseline.
 - Safe database health route.
+- Repeatable validation script and GitHub Actions workflow.
+- Initial Vitest unit coverage for knowledge validation schemas.
+- Public read API foundation for published games, entity lists, and entity detail.
+- Database-aware public category pages for vehicles, weapons, and missions.
+- Public entity detail route for published knowledge records.
+- Source attribution surfaced on public entity detail records.
+- Last-updated metadata on public category and entity detail records.
+- PostgreSQL fallback search API for published entities.
+- Public search page wired to published knowledge records.
+- Search results grouped by entity type.
+- Public map marker API and database-aware map shell.
+- Community submission intake API for moderation records.
+- Public community submission form for moderation intake.
+- OpenAPI draft aligned with implemented public API routes.
+- Static sitemap coverage for new public search and submission routes.
+- Image-backed home and GTA VI hub heroes for a more product-ready preview.
 
 ## Phase 2: Core Product Loop
 
@@ -28,10 +44,9 @@ Completed foundation items:
 - Add typed validation and repository helpers for game, entity, source, and entity-source workflows.
 - Seed foundation records without gameplay facts.
 - Implement admin CRUD for the first entity types.
-- Render public entity detail pages and category pages from database-backed records.
-- Add source attribution, verification labels, and last-updated metadata.
-- Add global search with result grouping and zero-result logging.
-- Build the map shell with marker categories, filters, marker detail sheet, and entity-marker links.
+- Add zero-result logging after the analytics/search-log schema is defined.
+- Add map marker filters, marker detail sheet, entity-marker links, and MapLibre rendering.
+- Add duplicate detection and admin moderation workflows for submissions.
 - Add analytics events for core user flows.
 - Add tests around schema validation, data access, and core entity behavior.
 

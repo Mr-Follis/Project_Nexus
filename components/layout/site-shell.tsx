@@ -6,7 +6,8 @@ import { Disclaimer } from "@/components/layout/disclaimer";
 export function SiteShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-bg-base text-text-primary">
-      <div className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-bg-base/85 backdrop-blur-xl">
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-[linear-gradient(180deg,rgba(54,209,220,0.08),transparent_18rem),linear-gradient(120deg,rgba(245,184,75,0.08),transparent_28rem)]" />
+      <div className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-bg-base/78 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link
             href="/"
@@ -16,7 +17,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
             <span className="flex h-9 w-9 items-center justify-center rounded-nexus border border-white/10 bg-bg-elevated text-sm font-semibold shadow-glow">
               NX
             </span>
-            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-text-primary">
+            <span className="text-sm font-semibold uppercase text-text-primary">
               Nexus
             </span>
           </Link>
