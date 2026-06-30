@@ -1,0 +1,124 @@
+openapi: 3.1.0
+info:
+  title: Project Nexus API
+  version: 0.1.0
+  description: Initial API contract for Project Nexus MVP.
+servers:
+  - url: https://api.example.com
+paths:
+  /games:
+    get:
+      summary: List published games
+      responses:
+        '200':
+          description: Games list
+  /games/{gameSlug}:
+    get:
+      summary: Get game hub data
+      parameters:
+        - name: gameSlug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Game details }
+  /games/{gameSlug}/entities:
+    get:
+      summary: List entities for a game
+      parameters:
+        - name: gameSlug
+          in: path
+          required: true
+          schema: { type: string }
+        - name: type
+          in: query
+          schema: { type: string }
+        - name: q
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { description: Entity list }
+  /games/{gameSlug}/entities/{entitySlug}:
+    get:
+      summary: Get entity detail
+      parameters:
+        - name: gameSlug
+          in: path
+          required: true
+          schema: { type: string }
+        - name: entitySlug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Entity detail }
+  /games/{gameSlug}/map/markers:
+    get:
+      summary: Get map markers
+      parameters:
+        - name: gameSlug
+          in: path
+          required: true
+          schema: { type: string }
+        - name: markerType
+          in: query
+          schema: { type: string }
+        - name: region
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { description: Marker list }
+  /search:
+    get:
+      summary: Search Nexus
+      parameters:
+        - name: game
+          in: query
+          schema: { type: string }
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Search results }
+  /assistant/ask:
+    post:
+      summary: Ask Nexus assistant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gameSlug: { type: string }
+                question: { type: string }
+                spoilerMode: { type: string, enum: [allow, avoid] }
+                userContext: { type: object }
+              required: [gameSlug, question]
+      responses:
+        '200': { description: Structured AI answer }
+  /submissions:
+    post:
+      summary: Create community submission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gameSlug: { type: string }
+                type: { type: string }
+                title: { type: string }
+                description: { type: string }
+                evidenceUrl: { type: string }
+                marker: { type: object }
+              required: [gameSlug, type, title]
+      responses:
+        '201': { description: Submission created }
+components:
+  schemas:
+    VerificationStatus:
+      type: string
+      enum: [confirmed_official, confirmed_gameplay, community_verified, likely, speculative, outdated, rejected]

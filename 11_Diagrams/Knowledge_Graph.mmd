@@ -1,0 +1,29 @@
+graph LR
+  Game --> Region
+  Game --> Vehicle
+  Game --> Weapon
+  Game --> Mission
+  Game --> Character
+  Game --> Business
+  Game --> Collectible
+  Game --> Guide
+  Game --> MapMarker
+
+  Vehicle -- SPAWNS_AT --> MapMarker
+  Weapon -- SOLD_BY --> Shop
+  Mission -- LOCATED_IN --> Region
+  Mission -- REWARDS --> Vehicle
+  Mission -- REQUIRES --> Weapon
+  Mission -- FEATURES --> Character
+  Business -- LOCATED_IN --> Region
+  Collectible -- HAS_MARKER --> MapMarker
+  Guide -- HAS_ENTITY --> Vehicle
+  Guide -- HAS_ENTITY --> Weapon
+  Guide -- HAS_ENTITY --> Mission
+  MapMarker -- LOCATED_IN --> Region
+  Source -- SUPPORTS --> Vehicle
+  Source -- SUPPORTS --> Weapon
+  Source -- SUPPORTS --> Mission
+  User -- SAVED --> MapMarker
+  User -- COMPLETED --> Mission
+  User -- FOUND --> Collectible

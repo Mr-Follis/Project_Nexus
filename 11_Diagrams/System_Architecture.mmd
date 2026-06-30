@@ -1,0 +1,25 @@
+flowchart TD
+  User[Player / Visitor] --> Web[Next.js Web App]
+  Admin[Admin / Editor] --> AdminUI[Admin CMS]
+  Web --> API[API Layer]
+  AdminUI --> API
+  API --> DB[(Postgres Knowledge Store)]
+  API --> Search[(Search Index)]
+  API --> Vector[(Vector Index / pgvector)]
+  API --> ObjectStore[(Object Storage)]
+  Web --> Map[Map UI]
+  Map --> API
+  Web --> Assistant[AI Assistant UI]
+  Assistant --> AI[AI Orchestrator]
+  AI --> DB
+  AI --> Vector
+  AI --> Logs[(AI Logs)]
+  Submissions[Community Submissions] --> API
+  API --> Queue[Job Queue]
+  Queue --> Workers[Automation Workers]
+  Workers --> DB
+  Workers --> Search
+  Workers --> Vector
+  Workers --> CDN[CDN / Page Revalidation]
+  Web --> Analytics[Analytics]
+  API --> Analytics

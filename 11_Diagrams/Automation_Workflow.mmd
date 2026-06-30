@@ -1,0 +1,13 @@
+flowchart TD
+  Trigger[Trigger: source, submission, edit, patch, trend] --> Extract[AI Extract / Classify]
+  Extract --> Validate[Validation Rules]
+  Validate --> Suggest[Create Suggested Change]
+  Suggest --> Review[Admin Review Queue]
+  Review -->|Approve| Publish[Publish Data Change]
+  Review -->|Edit| Publish
+  Review -->|Reject| Reject[Reject / Archive]
+  Publish --> Reindex[Update Search Index]
+  Publish --> Embed[Update Embeddings]
+  Publish --> Pages[Revalidate Pages]
+  Publish --> Sitemap[Update Sitemap]
+  Publish --> Analytics[Log Change]
