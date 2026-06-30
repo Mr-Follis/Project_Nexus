@@ -1,0 +1,63 @@
+# Secrets and environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Dependencies
+node_modules/
+.pnp/
+.pnp.*
+
+# Build output and caches
+.next/
+out/
+dist/
+build/
+coverage/
+.turbo/
+.parcel-cache/
+.vite/
+.swc/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Codex and agent session files
+.codex/
+.agents/
+codex-session*
+codex-*.log
+
+# Replit local/cache files
+.cache/
+.config/
+.local/
+.upm/
+.breakpoints
+replit_zip_error_log.txt
+
+# Editor and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Runtime and temporary files
+tmp/
+temp/
+*.tmp
+*.bak
