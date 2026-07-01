@@ -67,6 +67,15 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-01 approval-to-record checkpoint:
+
+- Completed the admin token authorization wiring that was left half-finished (the moderation API now authorizes before any DB work and passes the reviewer id into the audit trail).
+- Implemented approval-to-record: approving a submission now creates, in one transaction, an unpublished `draft` entity (verification `speculative`) linked back via `submissions.proposedEntityId`, plus an entity-creation audit event alongside the moderation audit. Re-approvals are idempotent; slug collisions are resolved with a submission-derived suffix.
+- Added pure, unit-tested helpers for submission-type-to-entity-type mapping, slugifying titles, building the draft, the approval guard, and the entity audit event.
+- Added an interactive admin moderation UI: a per-tab `x-admin-token` field (sessionStorage) and per-submission action buttons that PATCH the moderation API and refresh the queue.
+- Verified end-to-end on the running preview: created a submission, approved it via API, and confirmed the draft entity + two audit rows in the database; the draft stays unpublished so it does not surface on public pages.
+- `ADMIN_ACCESS_TOKEN` is set in Replit Secrets; the Replit-run dev server on port 3000 picks it up. Full validation (`format`, `typecheck`, `lint`, `test:unit`, `build`) passes.
+
 2026-07-01 later checkpoint:
 
 - Continued into the Admin and moderation foundation sprint.

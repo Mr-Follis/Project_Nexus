@@ -25,8 +25,11 @@ import {
 } from "@/lib/validation/knowledge";
 import {
   buildModerationAuditEvent,
+  buildSubmissionEntityAuditEvent,
+  buildSubmissionEntityDraft,
   isValidModerationTransition,
   moderationUpdateSchema,
+  shouldCreateEntityFromApproval,
   type ModerationUpdateInput
 } from "@/lib/validation/moderation";
 
@@ -289,36 +292,109 @@ export async function updateSubmissionModeration(
   }
 
   const db = getDb();
-  const setValues: Partial<typeof submissions.$inferInsert> = {
-    updatedAt: new Date()
-  };
-
-  if (data.status) {
-    setValues.status = data.status;
-  }
-
-  if (data.moderatorNotes !== undefined) {
-    setValues.moderatorNotes = data.moderatorNotes;
-  }
-
-  const [submission] = await db
-    .update(submissions)
-    .set(setValues)
-    .where(eq(submissions.id, id))
-    .returning();
-
   const nextStatus = data.status ?? currentSubmission.status;
-  const auditEvent = buildModerationAuditEvent({
-    submissionId: id,
-    oldStatus: currentSubmission.status,
-    newStatus: nextStatus,
-    reviewerId: options.reviewerId,
-    note: data.moderatorNotes
+  const createEntityFromApproval = shouldCreateEntityFromApproval({
+    currentStatus: currentSubmission.status,
+    nextStatus,
+    hasProposedEntity: Boolean(currentSubmission.proposedEntityId)
   });
 
-  await db.insert(recordVersions).values(auditEvent);
+  return db.transaction(async (tx) => {
+    const setValues: Partial<typeof submissions.$inferInsert> = {
+      updatedAt: new Date()
+    };
 
-  return submission;
+    if (data.status) {
+      setValues.status = data.status;
+    }
+
+    if (data.moderatorNotes !== undefined) {
+      setValues.moderatorNotes = data.moderatorNotes;
+    }
+
+    // Approval-to-record: an approved submission becomes an unpublished draft
+    // entity linked back to the submission, ready for editorial review.
+    if (createEntityFromApproval) {
+      const draft = entityInputSchema.parse(
+        buildSubmissionEntityDraft({
+          gameId: currentSubmission.gameId,
+          submissionType: currentSubmission.submissionType,
+          title: currentSubmission.title,
+          description: currentSubmission.description
+        })
+      );
+      const slug = await resolveAvailableEntitySlug(
+        tx,
+        currentSubmission.gameId,
+        draft.slug,
+        id
+      );
+
+      const [entity] = await tx
+        .insert(entities)
+        .values({
+          ...draft,
+          slug,
+          lastVerifiedAt: draft.lastVerifiedAt
+            ? new Date(draft.lastVerifiedAt)
+            : undefined
+        })
+        .returning();
+
+      setValues.proposedEntityId = entity.id;
+
+      await tx.insert(recordVersions).values(
+        buildSubmissionEntityAuditEvent({
+          entityId: entity.id,
+          submissionId: id,
+          reviewerId: options.reviewerId
+        })
+      );
+    }
+
+    const [submission] = await tx
+      .update(submissions)
+      .set(setValues)
+      .where(eq(submissions.id, id))
+      .returning();
+
+    await tx.insert(recordVersions).values(
+      buildModerationAuditEvent({
+        submissionId: id,
+        oldStatus: currentSubmission.status,
+        newStatus: nextStatus,
+        reviewerId: options.reviewerId,
+        note: data.moderatorNotes
+      })
+    );
+
+    return submission;
+  });
+}
+
+/**
+ * Returns a slug unique within the game, appending a short submission-derived
+ * suffix when the preferred slug is already taken so approval never fails the
+ * (game_id, slug) uniqueness constraint.
+ */
+async function resolveAvailableEntitySlug(
+  tx: Parameters<Parameters<ReturnType<typeof getDb>["transaction"]>[0]>[0],
+  gameId: string,
+  baseSlug: string,
+  submissionId: string
+) {
+  const [existing] = await tx
+    .select({ id: entities.id })
+    .from(entities)
+    .where(and(eq(entities.gameId, gameId), eq(entities.slug, baseSlug)))
+    .limit(1);
+
+  if (!existing) {
+    return baseSlug;
+  }
+
+  const suffix = submissionId.replace(/-/g, "").slice(0, 8);
+  return `${baseSlug.slice(0, 111)}-${suffix}`;
 }
 
 export async function createEntity(input: EntityInput) {

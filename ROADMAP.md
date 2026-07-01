@@ -60,11 +60,13 @@ Primary goal: protect the admin surface and add the smallest internal workflow f
 
 Recommended scope:
 
-- Add an admin access decision before production use.
-- Add minimal admin screens for games, sources, and knowledge entities.
-- Add reviewer identity and audit history for moderation changes.
-- Define approval-to-record behavior for accepted submissions.
-- Add focused tests around repository behavior and admin-safe validation.
+- Done: admin access decision — token authorization guards the moderation API.
+- Done: reviewer identity and audit history for moderation changes.
+- Done: approval-to-record — approving a submission creates a linked draft entity with an audit event.
+- Done: interactive admin moderation actions (token field + status buttons) in the admin UI.
+- Pending: minimal admin screens for games, sources, and knowledge entities (create/edit, not just moderation).
+- Pending: focused tests around the approval-to-record repository path (needs a DB-backed or integration test).
+- Pending: protect the `/admin` page itself (the read-only queue currently renders without auth; only the mutation API is gated).
 
 Defer until decisions are made:
 

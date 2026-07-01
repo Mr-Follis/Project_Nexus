@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { submissionStatus } from "@/db/schema";
+import { entityTypeSchema, type EntityInput } from "@/lib/validation/knowledge";
 
 export const moderationStatusSchema = z.enum(submissionStatus.enumValues);
 
@@ -67,6 +68,112 @@ export function buildModerationAuditEvent(input: ModerationAuditInput) {
     },
     changedFields:
       input.oldStatus === input.newStatus ? ["moderator_notes"] : ["status"],
-    changeReason: input.note ?? `Moderation status changed from ${input.oldStatus} to ${input.newStatus}.`
+    changeReason:
+      input.note ??
+      `Moderation status changed from ${input.oldStatus} to ${input.newStatus}.`
+  };
+}
+
+type EntityDraftType = (typeof entityTypeSchema.options)[number];
+
+/**
+ * Maps a free-text submission type (e.g. "vehicles", "Weapon") onto a known
+ * entity type, falling back to "other" when nothing matches so approval never
+ * fails on an unexpected value.
+ */
+export function resolveSubmissionEntityType(
+  submissionType: string
+): EntityDraftType {
+  const normalized = submissionType.trim().toLowerCase();
+  const singular = normalized.endsWith("s")
+    ? normalized.slice(0, -1)
+    : normalized;
+
+  return (
+    entityTypeSchema.options.find(
+      (value) => value === normalized || value === singular
+    ) ?? "other"
+  );
+}
+
+export function slugifyForSubmission(value: string) {
+  const slug = value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 100)
+    .replace(/-+$/g, "");
+
+  return slug || "submission";
+}
+
+export type SubmissionEntitySource = {
+  gameId: string;
+  submissionType: string;
+  title: string;
+  description?: string | null;
+};
+
+/**
+ * Builds the draft entity payload for an approved submission. The record is
+ * always created as an unpublished `draft` with `speculative` verification so
+ * approving a submission surfaces it for editorial review without exposing
+ * unverified community content publicly.
+ */
+export function buildSubmissionEntityDraft(
+  input: SubmissionEntitySource
+): EntityInput {
+  const description = input.description?.trim() || undefined;
+
+  return {
+    gameId: input.gameId,
+    type: resolveSubmissionEntityType(input.submissionType),
+    name: input.title.trim(),
+    slug: slugifyForSubmission(input.title),
+    summary: description ? description.slice(0, 1000) : undefined,
+    description,
+    status: "draft",
+    verification: "speculative",
+    confidenceScore: 0
+  };
+}
+
+/**
+ * Approval-to-record only fires when a submission first enters `approved` and
+ * has no linked entity yet, keeping re-approvals idempotent.
+ */
+export function shouldCreateEntityFromApproval(input: {
+  currentStatus: ModerationStatus;
+  nextStatus: ModerationStatus;
+  hasProposedEntity: boolean;
+}) {
+  return (
+    input.nextStatus === "approved" &&
+    input.currentStatus !== "approved" &&
+    !input.hasProposedEntity
+  );
+}
+
+export function buildSubmissionEntityAuditEvent(input: {
+  entityId: string;
+  submissionId: string;
+  reviewerId: string;
+  changedAt?: Date;
+}) {
+  const changedAt = input.changedAt ?? new Date();
+
+  return {
+    tableName: "entities",
+    recordId: input.entityId,
+    previousData: null,
+    newData: {
+      status: "draft",
+      createdFromSubmissionId: input.submissionId,
+      reviewerId: input.reviewerId,
+      changedAt: changedAt.toISOString()
+    },
+    changedFields: ["status"],
+    changeReason: `Draft entity created from approved submission ${input.submissionId}.`
   };
 }
