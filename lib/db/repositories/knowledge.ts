@@ -5,10 +5,12 @@ import {
   entitySources,
   games,
   mapMarkers,
+  recordVersions,
   sources,
   submissions,
   type entityType,
-  type recordStatus
+  type recordStatus,
+  type submissionStatus
 } from "@/db/schema";
 import { getDb } from "@/lib/db/client";
 import {
@@ -21,9 +23,16 @@ import {
   type GameInput,
   type SourceInput
 } from "@/lib/validation/knowledge";
+import {
+  buildModerationAuditEvent,
+  isValidModerationTransition,
+  moderationUpdateSchema,
+  type ModerationUpdateInput
+} from "@/lib/validation/moderation";
 
 type RecordStatus = (typeof recordStatus.enumValues)[number];
 type EntityType = (typeof entityType.enumValues)[number];
+type SubmissionStatus = (typeof submissionStatus.enumValues)[number];
 
 export async function listGames(options: { status?: RecordStatus } = {}) {
   const db = getDb();
@@ -215,6 +224,99 @@ export async function createSubmission(input: {
 }) {
   const db = getDb();
   const [submission] = await db.insert(submissions).values(input).returning();
+
+  return submission;
+}
+
+export async function listModerationSubmissions(
+  options: { status?: SubmissionStatus; limit?: number } = {}
+) {
+  const db = getDb();
+  const baseQuery = db
+    .select({
+      submission: submissions,
+      game: {
+        id: games.id,
+        title: games.title,
+        slug: games.slug
+      }
+    })
+    .from(submissions)
+    .innerJoin(games, eq(submissions.gameId, games.id));
+
+  if (options.status) {
+    return baseQuery
+      .where(eq(submissions.status, options.status))
+      .orderBy(desc(submissions.updatedAt))
+      .limit(options.limit ?? 50);
+  }
+
+  return baseQuery
+    .orderBy(desc(submissions.updatedAt))
+    .limit(options.limit ?? 50);
+}
+
+export async function getSubmissionById(id: string) {
+  const db = getDb();
+  const [submission] = await db
+    .select()
+    .from(submissions)
+    .where(eq(submissions.id, id))
+    .limit(1);
+
+  return submission ?? null;
+}
+
+export async function updateSubmissionModeration(
+  id: string,
+  input: ModerationUpdateInput,
+  options: { reviewerId: string }
+) {
+  const data = moderationUpdateSchema.parse(input);
+  const currentSubmission = await getSubmissionById(id);
+
+  if (!currentSubmission) {
+    return null;
+  }
+
+  if (
+    data.status &&
+    !isValidModerationTransition(currentSubmission.status, data.status)
+  ) {
+    throw new Error(
+      `Cannot transition submission from ${currentSubmission.status} to ${data.status}.`
+    );
+  }
+
+  const db = getDb();
+  const setValues: Partial<typeof submissions.$inferInsert> = {
+    updatedAt: new Date()
+  };
+
+  if (data.status) {
+    setValues.status = data.status;
+  }
+
+  if (data.moderatorNotes !== undefined) {
+    setValues.moderatorNotes = data.moderatorNotes;
+  }
+
+  const [submission] = await db
+    .update(submissions)
+    .set(setValues)
+    .where(eq(submissions.id, id))
+    .returning();
+
+  const nextStatus = data.status ?? currentSubmission.status;
+  const auditEvent = buildModerationAuditEvent({
+    submissionId: id,
+    oldStatus: currentSubmission.status,
+    newStatus: nextStatus,
+    reviewerId: options.reviewerId,
+    note: data.moderatorNotes
+  });
+
+  await db.insert(recordVersions).values(auditEvent);
 
   return submission;
 }
