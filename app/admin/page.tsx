@@ -14,6 +14,7 @@ import { getAdminSession } from "@/lib/auth/session";
 import { getDatabaseUrl } from "@/lib/db/client";
 import {
   listAdminEntities,
+  listGames,
   listModerationSubmissions
 } from "@/lib/db/repositories/knowledge";
 import { listAdminMedia } from "@/lib/db/repositories/media";
@@ -102,6 +103,46 @@ export default async function AdminPage() {
           {state.message}
         </p>
       </Card>
+
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-text-primary">Games</h2>
+        <p className="text-sm leading-6 text-text-secondary">
+          Public pages, APIs, search, and maps only expose a game once it is
+          published. Publish a game to make its published entities and media
+          visible.
+        </p>
+        {state.games.length > 0 ? (
+          state.games.map((game) => (
+            <Card key={game.id}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge tone={getStatusTone(game.status)}>
+                  {formatStatus(game.status)}
+                </Badge>
+                <Badge>{game.slug}</Badge>
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-text-primary">
+                {game.title}
+              </h3>
+              {game.description ? (
+                <p className="mt-2 text-sm leading-6 text-text-secondary">
+                  {game.description}
+                </p>
+              ) : null}
+              <StatusActions
+                endpoint={`/api/admin/games/${game.id}`}
+                currentStatus={game.status}
+              />
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <p className="text-sm leading-6 text-text-secondary">
+              No games yet. Run the foundation seed to create the GTA VI hub
+              record.
+            </p>
+          </Card>
+        )}
+      </div>
 
       {state.submissions.length > 0 ? (
         <div className="space-y-4">
@@ -283,6 +324,7 @@ export default async function AdminPage() {
 
 type AdminEntity = Awaited<ReturnType<typeof listAdminEntities>>[number];
 type AdminMedia = Awaited<ReturnType<typeof listAdminMedia>>[number];
+type AdminGame = Awaited<ReturnType<typeof listGames>>[number];
 
 async function getModerationState() {
   if (!getDatabaseUrl()) {
@@ -295,15 +337,17 @@ async function getModerationState() {
       submissions: [],
       newCount: 0,
       entities: [] as AdminEntity[],
-      media: [] as AdminMedia[]
+      media: [] as AdminMedia[],
+      games: [] as AdminGame[]
     };
   }
 
   try {
-    const [submissions, entities, media] = await Promise.all([
+    const [submissions, entities, media, games] = await Promise.all([
       listModerationSubmissions({ limit: 25 }),
       listAdminEntities({ limit: 25 }),
-      listAdminMedia({ limit: 25 })
+      listAdminMedia({ limit: 25 }),
+      listGames()
     ]);
     const newCount = submissions.filter(
       ({ submission }) => submission.status === "new"
@@ -326,7 +370,8 @@ async function getModerationState() {
       submissions,
       newCount,
       entities,
-      media
+      media,
+      games
     };
   } catch (error) {
     return {
@@ -341,7 +386,8 @@ async function getModerationState() {
       submissions: [],
       newCount: 0,
       entities: [] as AdminEntity[],
-      media: [] as AdminMedia[]
+      media: [] as AdminMedia[],
+      games: [] as AdminGame[]
     };
   }
 }

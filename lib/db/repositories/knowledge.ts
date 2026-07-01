@@ -82,6 +82,47 @@ export async function getPublicGameBySlug(slug: string) {
   return game ?? null;
 }
 
+export async function getGameById(id: string) {
+  const db = getDb();
+  const [game] = await db.select().from(games).where(eq(games.id, id)).limit(1);
+
+  return game ?? null;
+}
+
+export async function updateGameStatus(
+  id: string,
+  status: RecordStatus,
+  options: { reviewerId: string }
+) {
+  const current = await getGameById(id);
+
+  if (!current) {
+    return null;
+  }
+
+  const db = getDb();
+
+  return db.transaction(async (tx) => {
+    const [game] = await tx
+      .update(games)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(games.id, id))
+      .returning();
+
+    await tx.insert(recordVersions).values({
+      ...buildEntityStatusAuditEvent({
+        entityId: id,
+        oldStatus: current.status,
+        newStatus: status,
+        reviewerId: options.reviewerId
+      }),
+      tableName: "games"
+    });
+
+    return game;
+  });
+}
+
 export async function upsertGame(input: GameInput) {
   const db = getDb();
   const data = gameInputSchema.parse(input);

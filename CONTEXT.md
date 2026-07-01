@@ -67,6 +67,13 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-01 game-publish checkpoint:
+
+- Added a game publish workflow: `getGameById`, audited `updateGameStatus`, `PATCH /api/admin/games/[gameId]`, and an admin Games section using the shared `StatusActions` control.
+- Closed the public loop end-to-end on the preview: a community submission approved into a draft entity, published, then made visible only after the game itself was published (public reads require a published game).
+- Removed the fabricated demo submission/entity used during verification and reverted `gta-6` to `draft` to respect the no-published-gameplay-facts rule; only seeded media, the draft game, and official source records remain.
+- 75 unit tests, typecheck, lint, format, and production build pass.
+
 2026-07-01 media library checkpoint:
 
 - Added a structured media library (`media_assets` table, migration `0001`) with metadata for source, copyright owner, original URL, asset type, provenance, and a related-entity link, designed so official promotional placeholders can be replaced later by original Project Nexus content.
