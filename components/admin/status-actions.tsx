@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
-const STATUSES = ["draft", "published", "hidden", "archived"] as const;
+const DEFAULT_STATUSES = ["draft", "published", "hidden", "archived"] as const;
 
 type ActionState =
   | { status: "idle" }
@@ -13,12 +13,18 @@ type ActionState =
   | { status: "error"; message: string }
   | { status: "success"; message: string };
 
-export function EntityActions({
-  entityId,
-  currentStatus
+/**
+ * Shared record-status control used by admin lists (entities, media, ...). It
+ * PATCHes { status } to the given endpoint and refreshes the server component.
+ */
+export function StatusActions({
+  endpoint,
+  currentStatus,
+  statuses = DEFAULT_STATUSES
 }: {
-  entityId: string;
+  endpoint: string;
   currentStatus: string;
+  statuses?: readonly string[];
 }) {
   const router = useRouter();
   const [state, setState] = useState<ActionState>({ status: "idle" });
@@ -30,7 +36,7 @@ export function EntityActions({
     let body: { ok?: boolean; error?: string };
 
     try {
-      response = await fetch(`/api/admin/entities/${entityId}`, {
+      response = await fetch(endpoint, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -42,10 +48,7 @@ export function EntityActions({
     }
 
     if (!response.ok || !body.ok) {
-      setState({
-        status: "error",
-        message: body.error ?? "Entity update failed."
-      });
+      setState({ status: "error", message: body.error ?? "Update failed." });
       return;
     }
 
@@ -56,20 +59,22 @@ export function EntityActions({
   return (
     <div className="mt-4 space-y-2 border-t border-white/10 pt-4">
       <div className="flex flex-wrap gap-2">
-        {STATUSES.filter((status) => status !== currentStatus).map((status) => (
-          <Button
-            key={status}
-            variant={status === "published" ? "primary" : "secondary"}
-            disabled={state.status === "working"}
-            onClick={() => apply(status)}
-          >
-            {state.status === "working" && state.target === status
-              ? "Working…"
-              : status === "published"
-                ? "Publish"
-                : `Set ${status}`}
-          </Button>
-        ))}
+        {statuses
+          .filter((status) => status !== currentStatus)
+          .map((status) => (
+            <Button
+              key={status}
+              variant={status === "published" ? "primary" : "secondary"}
+              disabled={state.status === "working"}
+              onClick={() => apply(status)}
+            >
+              {state.status === "working" && state.target === status
+                ? "Working…"
+                : status === "published"
+                  ? "Publish"
+                  : `Set ${status}`}
+            </Button>
+          ))}
       </div>
       {state.status === "error" ? (
         <p className="text-sm text-status-warning">{state.message}</p>

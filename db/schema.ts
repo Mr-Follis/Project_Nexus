@@ -68,6 +68,25 @@ export const submissionStatus = pgEnum("submission_status", [
   "spam"
 ]);
 
+export const mediaType = pgEnum("media_type", [
+  "screenshot",
+  "key_art",
+  "artwork",
+  "promotional_image",
+  "trailer",
+  "logo",
+  "other"
+]);
+
+// Tracks where an asset came from so official promotional placeholders can be
+// gradually replaced by original Project Nexus or community-approved media.
+export const mediaProvenance = pgEnum("media_provenance", [
+  "official_promotional",
+  "project_nexus_original",
+  "community_approved",
+  "placeholder"
+]);
+
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
@@ -441,6 +460,53 @@ export const submissions = pgTable("submissions", {
   moderatorNotes: text("moderator_notes"),
   ...timestamps
 });
+
+export const mediaAssets = pgTable(
+  "media_assets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    gameId: uuid("game_id")
+      .notNull()
+      .references(() => games.id, { onDelete: "cascade" }),
+    // Related entity (character, vehicle, mission, location, ...). Optional so
+    // brand/hero art that is not tied to a single record can still be stored.
+    entityId: uuid("entity_id").references(() => entities.id, {
+      onDelete: "set null"
+    }),
+    type: mediaType("type").notNull(),
+    provenance: mediaProvenance("provenance").notNull().default("placeholder"),
+    title: text("title").notNull(),
+    caption: text("caption"),
+    altText: text("alt_text"),
+    // Where the file lives: a local path under /public, or an external URL.
+    filePath: text("file_path"),
+    externalUrl: text("external_url"),
+    // Attribution metadata.
+    sourceName: text("source_name"),
+    copyrightOwner: text("copyright_owner"),
+    originalUrl: text("original_url"),
+    attributionRequired: boolean("attribution_required")
+      .notNull()
+      .default(true),
+    attributionText: text("attribution_text"),
+    width: integer("width"),
+    height: integer("height"),
+    isFeatured: boolean("is_featured").notNull().default(false),
+    status: recordStatus("status").notNull().default("draft"),
+    ...timestamps
+  },
+  (table) => ({
+    gameTypeIdx: index("idx_media_assets_game_type").on(
+      table.gameId,
+      table.type
+    ),
+    entityIdx: index("idx_media_assets_entity").on(table.entityId),
+    featuredIdx: index("idx_media_assets_featured").on(
+      table.status,
+      table.isFeatured
+    )
+  })
+);
 
 export const recordVersions = pgTable("record_versions", {
   id: uuid("id").primaryKey().defaultRandom(),

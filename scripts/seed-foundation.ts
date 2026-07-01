@@ -3,8 +3,41 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import * as schema from "@/db/schema";
-import { games, sources } from "@/db/schema";
+import { games, mediaAssets, sources } from "@/db/schema";
 import { gameInputSchema, sourceInputSchema } from "@/lib/validation/knowledge";
+import { mediaAssetInputSchema } from "@/lib/validation/media";
+
+const foundationMedia = [
+  {
+    type: "key_art",
+    provenance: "project_nexus_original",
+    title: "Project Nexus city intelligence backdrop",
+    caption:
+      "Original Project Nexus key art used as the cinematic hero until official or original gameplay media replaces it.",
+    altText: "Stylised aerial view of a neon coastal city at dusk.",
+    filePath: "/images/nexus-city-intel-hero.png",
+    copyrightOwner: "Project Nexus",
+    attributionRequired: true,
+    attributionText: "© Project Nexus.",
+    isFeatured: true,
+    status: "published"
+  },
+  {
+    type: "promotional_image",
+    provenance: "official_promotional",
+    title: "GTA VI official promotional media (metadata placeholder)",
+    caption:
+      "Editorial metadata slot for officially released Rockstar promotional media. The image file is added by an editor from an official source; no third-party content is bundled.",
+    altText: "Placeholder for official GTA VI promotional imagery.",
+    externalUrl: "https://www.rockstargames.com/VI/",
+    sourceName: "Rockstar Games",
+    copyrightOwner: "Rockstar Games / Take-Two Interactive",
+    originalUrl: "https://www.rockstargames.com/VI/",
+    attributionRequired: true,
+    isFeatured: false,
+    status: "draft"
+  }
+] as const;
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -95,7 +128,24 @@ async function main() {
     }
   }
 
-  console.log("Seeded foundation knowledge records.");
+  for (const media of foundationMedia) {
+    const mediaInput = mediaAssetInputSchema.parse({
+      ...media,
+      gameId: game.id
+    });
+
+    const existing = await db
+      .select()
+      .from(mediaAssets)
+      .where(eq(mediaAssets.title, mediaInput.title))
+      .limit(1);
+
+    if (existing.length === 0) {
+      await db.insert(mediaAssets).values(mediaInput);
+    }
+  }
+
+  console.log("Seeded foundation knowledge and media records.");
 }
 
 main()

@@ -5,7 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Disclaimer } from "@/components/layout/disclaimer";
+import { HeroBackdrop } from "@/components/media/hero-backdrop";
 import { Reveal } from "@/components/motion/reveal";
+import { getGameHeroMedia } from "@/lib/media/hero";
+
+export const dynamic = "force-dynamic";
 
 const featureCards = [
   {
@@ -25,12 +29,13 @@ const featureCards = [
   }
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const heroMedia = await getGameHeroMedia("gta-6");
+
   return (
     <div className="space-y-16 pb-12">
       <section className="relative left-1/2 min-h-[calc(100vh-8rem)] w-screen -translate-x-1/2 overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[url('/images/nexus-city-intel-hero.png')] bg-cover bg-center" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,15,0.96)_0%,rgba(8,10,15,0.82)_38%,rgba(8,10,15,0.22)_100%),linear-gradient(180deg,rgba(8,10,15,0.2)_0%,rgba(8,10,15,0.78)_100%)]" />
+        <HeroBackdrop media={heroMedia} />
 
         <Reveal className="relative mx-auto flex min-h-[calc(100vh-8rem)] max-w-6xl flex-col justify-end px-4 pb-12 pt-24 sm:px-6 lg:pb-16">
           <div className="max-w-3xl">

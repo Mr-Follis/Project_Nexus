@@ -66,6 +66,8 @@ Recommended scope:
 - Done: interactive admin moderation actions (status buttons + notes) in the admin UI.
 - Done: protect the `/admin` page with a cookie-based admin session (login/logout); the same http-only cookie authorizes the moderation API.
 - Done: admin knowledge-entities list with a publish/unpublish/hide/archive action (audited) so approval-to-record drafts can reach `published`.
+- Done: structured media library (`media_assets`) with provenance/attribution metadata, admin management, a cinematic hero wired through it, and an unofficial trademark disclaimer — official promotional placeholders are designed to be replaced by original Project Nexus media later.
+- Pending: media asset admin create/upload form and per-entity media galleries on public pages (schema and repository support exist; only status is editable in the admin UI so far).
 - Pending: games and sources admin CRUD, including a **game publish** action — a published entity still will not appear on public pages until its game is published (public reads require a published game).
 - Pending: entity create/edit forms (currently entities can be created only via seed or approval-to-record, and only their status is editable in the admin UI).
 - Pending: focused tests around the approval-to-record and entity-publish repository paths (needs a DB-backed or integration test).

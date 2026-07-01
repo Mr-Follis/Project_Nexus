@@ -4,8 +4,9 @@ import {
   AdminLogin,
   AdminLogoutButton
 } from "@/components/admin/admin-session";
-import { EntityActions } from "@/components/admin/entity-actions";
+import { StatusActions } from "@/components/admin/status-actions";
 import { SubmissionActions } from "@/components/admin/submission-actions";
+import { MediaAttribution } from "@/components/media/media-attribution";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -15,10 +16,12 @@ import {
   listAdminEntities,
   listModerationSubmissions
 } from "@/lib/db/repositories/knowledge";
+import { listAdminMedia } from "@/lib/db/repositories/media";
 import {
   getAllowedModerationStatuses,
   type ModerationStatus
 } from "@/lib/validation/moderation";
+import { resolveMediaAttribution } from "@/lib/validation/media";
 import { formatDate } from "@/lib/utils/date";
 
 export const dynamic = "force-dynamic";
@@ -198,8 +201,8 @@ export default async function AdminPage() {
               <div className="mt-3 text-xs font-medium text-text-muted">
                 Updated {formatDate(entity.updatedAt)}
               </div>
-              <EntityActions
-                entityId={entity.id}
+              <StatusActions
+                endpoint={`/api/admin/entities/${entity.id}`}
                 currentStatus={entity.status}
               />
             </Card>
@@ -213,11 +216,73 @@ export default async function AdminPage() {
           </Card>
         )}
       </div>
+
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-text-primary">
+          Media library
+        </h2>
+        <p className="text-sm leading-6 text-text-secondary">
+          Official promotional media is stored as editorial placeholders with
+          full attribution and can be published, hidden, or replaced later by
+          original Project Nexus content.
+        </p>
+        {state.media.length > 0 ? (
+          state.media.map(({ media, game }) => (
+            <Card key={media.id}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge tone={getStatusTone(media.status)}>
+                  {formatStatus(media.status)}
+                </Badge>
+                <Badge>{game.title}</Badge>
+                <Badge>{formatStatus(media.type)}</Badge>
+                {media.isFeatured ? (
+                  <Badge tone="accent">Featured</Badge>
+                ) : null}
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-text-primary">
+                {media.title}
+              </h3>
+              {media.caption ? (
+                <p className="mt-2 text-sm leading-6 text-text-secondary">
+                  {media.caption}
+                </p>
+              ) : null}
+              <MediaAttribution
+                attribution={resolveMediaAttribution(media)}
+                provenance={media.provenance}
+                className="mt-3 text-xs"
+              />
+              {media.originalUrl ? (
+                <a
+                  href={media.originalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-block text-sm text-accent-secondary hover:text-accent-secondary/80"
+                >
+                  Source
+                </a>
+              ) : null}
+              <StatusActions
+                endpoint={`/api/admin/media/${media.id}`}
+                currentStatus={media.status}
+              />
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <p className="text-sm leading-6 text-text-secondary">
+              No media assets yet. Run the foundation seed to add the starter
+              library.
+            </p>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
 
 type AdminEntity = Awaited<ReturnType<typeof listAdminEntities>>[number];
+type AdminMedia = Awaited<ReturnType<typeof listAdminMedia>>[number];
 
 async function getModerationState() {
   if (!getDatabaseUrl()) {
@@ -229,14 +294,16 @@ async function getModerationState() {
       message: "Set DATABASE_URL to load community submissions for moderation.",
       submissions: [],
       newCount: 0,
-      entities: [] as AdminEntity[]
+      entities: [] as AdminEntity[],
+      media: [] as AdminMedia[]
     };
   }
 
   try {
-    const [submissions, entities] = await Promise.all([
+    const [submissions, entities, media] = await Promise.all([
       listModerationSubmissions({ limit: 25 }),
-      listAdminEntities({ limit: 25 })
+      listAdminEntities({ limit: 25 }),
+      listAdminMedia({ limit: 25 })
     ]);
     const newCount = submissions.filter(
       ({ submission }) => submission.status === "new"
@@ -258,7 +325,8 @@ async function getModerationState() {
           : "Community submissions will appear here after intake records are created.",
       submissions,
       newCount,
-      entities
+      entities,
+      media
     };
   } catch (error) {
     return {
@@ -272,7 +340,8 @@ async function getModerationState() {
           : "Could not load moderation submissions.",
       submissions: [],
       newCount: 0,
-      entities: [] as AdminEntity[]
+      entities: [] as AdminEntity[],
+      media: [] as AdminMedia[]
     };
   }
 }

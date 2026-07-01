@@ -67,6 +67,16 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-01 media library checkpoint:
+
+- Added a structured media library (`media_assets` table, migration `0001`) with metadata for source, copyright owner, original URL, asset type, provenance, and a related-entity link, designed so official promotional placeholders can be replaced later by original Project Nexus content.
+- Added `media_type` and `media_provenance` enums (`official_promotional`, `project_nexus_original`, `community_approved`, `placeholder`); official media validation requires a copyright owner plus a source name or original URL.
+- Added media validation, repository helpers (featured lookup, per-entity, admin list, audited status update), attribution resolution, and a shared `StatusActions` admin control (generalised from the entity publish buttons).
+- Wired the home hero to render from the media library via `getGameHeroMedia` with a Project Nexus original fallback and a corner attribution/provenance chip; sharpened the site disclaimer to a trademark/attribution statement.
+- Added an admin Media library section and `PATCH /api/admin/media/[mediaId]`; seeded a featured original hero asset plus an official-promotional metadata placeholder (no third-party binaries bundled).
+- No Rockstar media files were downloaded; the system stores metadata and renders the existing original placeholder. Editors add official files into the structured library later.
+- Verified live: home hero renders from the library with attribution; admin media publish/hide works; 71 unit tests, typecheck, lint, format, and production build pass.
+
 2026-07-01 approval-to-record checkpoint:
 
 - Completed the admin token authorization wiring that was left half-finished (the moderation API now authorizes before any DB work and passes the reviewer id into the audit trail).
