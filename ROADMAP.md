@@ -65,8 +65,10 @@ Recommended scope:
 - Done: approval-to-record — approving a submission creates a linked draft entity with an audit event.
 - Done: interactive admin moderation actions (status buttons + notes) in the admin UI.
 - Done: protect the `/admin` page with a cookie-based admin session (login/logout); the same http-only cookie authorizes the moderation API.
-- Pending: minimal admin screens for games, sources, and knowledge entities (create/edit + publish, not just moderation) — needed so approval-to-record drafts can reach `published`.
-- Pending: focused tests around the approval-to-record repository path (needs a DB-backed or integration test).
+- Done: admin knowledge-entities list with a publish/unpublish/hide/archive action (audited) so approval-to-record drafts can reach `published`.
+- Pending: games and sources admin CRUD, including a **game publish** action — a published entity still will not appear on public pages until its game is published (public reads require a published game).
+- Pending: entity create/edit forms (currently entities can be created only via seed or approval-to-record, and only their status is editable in the admin UI).
+- Pending: focused tests around the approval-to-record and entity-publish repository paths (needs a DB-backed or integration test).
 
 Defer until decisions are made:
 

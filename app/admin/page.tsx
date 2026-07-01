@@ -4,13 +4,17 @@ import {
   AdminLogin,
   AdminLogoutButton
 } from "@/components/admin/admin-session";
+import { EntityActions } from "@/components/admin/entity-actions";
 import { SubmissionActions } from "@/components/admin/submission-actions";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getAdminSession } from "@/lib/auth/session";
 import { getDatabaseUrl } from "@/lib/db/client";
-import { listModerationSubmissions } from "@/lib/db/repositories/knowledge";
+import {
+  listAdminEntities,
+  listModerationSubmissions
+} from "@/lib/db/repositories/knowledge";
 import {
   getAllowedModerationStatuses,
   type ModerationStatus
@@ -164,9 +168,56 @@ export default async function AdminPage() {
           })}
         </div>
       ) : null}
+
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-text-primary">
+          Knowledge entities
+        </h2>
+        <p className="text-sm leading-6 text-text-secondary">
+          Draft records — including those created from approved submissions —
+          stay unpublished until you publish them here.
+        </p>
+        {state.entities.length > 0 ? (
+          state.entities.map(({ entity, game }) => (
+            <Card key={entity.id}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge tone={getStatusTone(entity.status)}>
+                  {formatStatus(entity.status)}
+                </Badge>
+                <Badge>{game.title}</Badge>
+                <Badge>{entity.type}</Badge>
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-text-primary">
+                {entity.name}
+              </h3>
+              {entity.summary ? (
+                <p className="mt-2 text-sm leading-6 text-text-secondary">
+                  {entity.summary}
+                </p>
+              ) : null}
+              <div className="mt-3 text-xs font-medium text-text-muted">
+                Updated {formatDate(entity.updatedAt)}
+              </div>
+              <EntityActions
+                entityId={entity.id}
+                currentStatus={entity.status}
+              />
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <p className="text-sm leading-6 text-text-secondary">
+              No knowledge entities yet. Approve a submission to create the
+              first draft record.
+            </p>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
+
+type AdminEntity = Awaited<ReturnType<typeof listAdminEntities>>[number];
 
 async function getModerationState() {
   if (!getDatabaseUrl()) {
@@ -177,12 +228,16 @@ async function getModerationState() {
       heading: "Moderation queue unavailable",
       message: "Set DATABASE_URL to load community submissions for moderation.",
       submissions: [],
-      newCount: 0
+      newCount: 0,
+      entities: [] as AdminEntity[]
     };
   }
 
   try {
-    const submissions = await listModerationSubmissions({ limit: 25 });
+    const [submissions, entities] = await Promise.all([
+      listModerationSubmissions({ limit: 25 }),
+      listAdminEntities({ limit: 25 })
+    ]);
     const newCount = submissions.filter(
       ({ submission }) => submission.status === "new"
     ).length;
@@ -202,7 +257,8 @@ async function getModerationState() {
           ? "Review evidence and mark submissions before creating or changing public records."
           : "Community submissions will appear here after intake records are created.",
       submissions,
-      newCount
+      newCount,
+      entities
     };
   } catch (error) {
     return {
@@ -215,7 +271,8 @@ async function getModerationState() {
           ? error.message
           : "Could not load moderation submissions.",
       submissions: [],
-      newCount: 0
+      newCount: 0,
+      entities: [] as AdminEntity[]
     };
   }
 }

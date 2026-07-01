@@ -32,6 +32,11 @@ import {
   shouldCreateEntityFromApproval,
   type ModerationUpdateInput
 } from "@/lib/validation/moderation";
+import {
+  buildEntityStatusAuditEvent,
+  entityStatusUpdateSchema,
+  type EntityStatusUpdateInput
+} from "@/lib/validation/entity-admin";
 
 type RecordStatus = (typeof recordStatus.enumValues)[number];
 type EntityType = (typeof entityType.enumValues)[number];
@@ -395,6 +400,69 @@ async function resolveAvailableEntitySlug(
 
   const suffix = submissionId.replace(/-/g, "").slice(0, 8);
   return `${baseSlug.slice(0, 111)}-${suffix}`;
+}
+
+export async function listAdminEntities(options: { limit?: number } = {}) {
+  const db = getDb();
+
+  return db
+    .select({
+      entity: entities,
+      game: {
+        id: games.id,
+        title: games.title,
+        slug: games.slug
+      }
+    })
+    .from(entities)
+    .innerJoin(games, eq(entities.gameId, games.id))
+    .orderBy(desc(entities.updatedAt))
+    .limit(options.limit ?? 25);
+}
+
+export async function getEntityById(id: string) {
+  const db = getDb();
+  const [entity] = await db
+    .select()
+    .from(entities)
+    .where(eq(entities.id, id))
+    .limit(1);
+
+  return entity ?? null;
+}
+
+export async function updateEntityStatus(
+  id: string,
+  input: EntityStatusUpdateInput,
+  options: { reviewerId: string }
+) {
+  const data = entityStatusUpdateSchema.parse(input);
+  const current = await getEntityById(id);
+
+  if (!current) {
+    return null;
+  }
+
+  const db = getDb();
+
+  return db.transaction(async (tx) => {
+    const [entity] = await tx
+      .update(entities)
+      .set({ status: data.status, updatedAt: new Date() })
+      .where(eq(entities.id, id))
+      .returning();
+
+    await tx.insert(recordVersions).values(
+      buildEntityStatusAuditEvent({
+        entityId: id,
+        oldStatus: current.status,
+        newStatus: data.status,
+        reviewerId: options.reviewerId
+      })
+    );
+
+    return entity;
+  });
 }
 
 export async function createEntity(input: EntityInput) {
