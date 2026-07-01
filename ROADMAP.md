@@ -63,10 +63,10 @@ Recommended scope:
 - Done: admin access decision — token authorization guards the moderation API.
 - Done: reviewer identity and audit history for moderation changes.
 - Done: approval-to-record — approving a submission creates a linked draft entity with an audit event.
-- Done: interactive admin moderation actions (token field + status buttons) in the admin UI.
-- Pending: minimal admin screens for games, sources, and knowledge entities (create/edit, not just moderation).
+- Done: interactive admin moderation actions (status buttons + notes) in the admin UI.
+- Done: protect the `/admin` page with a cookie-based admin session (login/logout); the same http-only cookie authorizes the moderation API.
+- Pending: minimal admin screens for games, sources, and knowledge entities (create/edit + publish, not just moderation) — needed so approval-to-record drafts can reach `published`.
 - Pending: focused tests around the approval-to-record repository path (needs a DB-backed or integration test).
-- Pending: protect the `/admin` page itself (the read-only queue currently renders without auth; only the mutation API is gated).
 
 Defer until decisions are made:
 

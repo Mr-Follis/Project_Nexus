@@ -68,4 +68,32 @@ describe("admin auth", () => {
       reviewerId: "dev-admin"
     });
   });
+
+  it("authorizes API access with the session cookie", async () => {
+    const { authorizeAdminRequest, getAdminTokenCookieName } =
+      await import("./admin");
+    const request = new Request("https://example.com", {
+      headers: {
+        cookie: `theme=dark; ${getAdminTokenCookieName()}=dev-token`
+      }
+    });
+
+    expect(authorizeAdminRequest(request)).toEqual({
+      ok: true,
+      reviewerId: "dev-admin"
+    });
+  });
+
+  it("rejects API access with a mismatched session cookie", async () => {
+    const { authorizeAdminRequest, getAdminTokenCookieName } =
+      await import("./admin");
+    const request = new Request("https://example.com", {
+      headers: { cookie: `${getAdminTokenCookieName()}=wrong-token` }
+    });
+
+    expect(authorizeAdminRequest(request)).toMatchObject({
+      ok: false,
+      status: 401
+    });
+  });
 });

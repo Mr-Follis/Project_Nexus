@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { useAdminToken } from "@/components/admin/admin-auth";
 
 type ActionState =
   | { status: "idle" }
@@ -23,7 +22,6 @@ export function SubmissionActions({
   submissionId: string;
   allowedStatuses: string[];
 }) {
-  const { token } = useAdminToken();
   const router = useRouter();
   const [notes, setNotes] = useState("");
   const [state, setState] = useState<ActionState>({ status: "idle" });
@@ -37,14 +35,6 @@ export function SubmissionActions({
   }
 
   async function apply(status: string) {
-    if (!token) {
-      setState({
-        status: "error",
-        message: "Enter the admin token above to moderate."
-      });
-      return;
-    }
-
     setState({ status: "working", target: status });
 
     let response: Response;
@@ -54,8 +44,7 @@ export function SubmissionActions({
       response = await fetch(`/api/admin/submissions/${submissionId}`, {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json",
-          "x-admin-token": token
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           status,

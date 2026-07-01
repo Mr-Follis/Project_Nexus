@@ -62,5 +62,27 @@ function getAdminTokenFromHeaders(headers: Headers) {
     return authorization.slice("bearer ".length).trim();
   }
 
+  return getAdminTokenFromCookieHeader(headers.get("cookie"));
+}
+
+function getAdminTokenFromCookieHeader(cookieHeader: string | null) {
+  if (!cookieHeader) {
+    return null;
+  }
+
+  for (const part of cookieHeader.split(";")) {
+    const separator = part.indexOf("=");
+
+    if (separator === -1) {
+      continue;
+    }
+
+    const name = part.slice(0, separator).trim();
+
+    if (name === adminTokenCookieName) {
+      return decodeURIComponent(part.slice(separator + 1).trim());
+    }
+  }
+
   return null;
 }
