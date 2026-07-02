@@ -64,3 +64,4 @@ temp/
 
 # Claude Code session dir
 .claude/
+.next-build/

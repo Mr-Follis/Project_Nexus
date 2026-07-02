@@ -40,8 +40,9 @@ const inputClassName =
  * JSON payload from its field config (numbers parsed, comma lists split,
  * dates converted to ISO datetimes, empty optional fields omitted), submits
  * to the given endpoint, and refreshes the server component on success.
- * Clearing an existing optional value is not supported yet: empty fields are
- * omitted from the payload rather than sent as deletions.
+ * On edit (PUT) forms, emptying a text-like field that was prefilled sends
+ * null (or [] for comma lists) so the existing value is cleared; fields that
+ * were empty to begin with stay omitted.
  */
 export function RecordForm({
   endpoint,
@@ -85,7 +86,7 @@ export function RecordForm({
       response = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildPayload(fields, values))
+        body: JSON.stringify(buildPayload(fields, values, method))
       });
       body = await response.json();
     } catch {
@@ -247,9 +248,12 @@ function buildDefaultValues(fields: RecordFieldConfig[]) {
   return values;
 }
 
+const CLEARABLE_KINDS = new Set(["text", "textarea", "date", "datetime"]);
+
 function buildPayload(
   fields: RecordFieldConfig[],
-  values: Record<string, string>
+  values: Record<string, string>,
+  method: "POST" | "PUT"
 ) {
   const payload: Record<string, unknown> = {};
 
@@ -264,6 +268,16 @@ function buildPayload(
     }
 
     if (!raw) {
+      const hadValue = Boolean(field.defaultValue?.trim());
+
+      if (method === "PUT" && hadValue && CLEARABLE_KINDS.has(field.kind)) {
+        payload[field.name] = null;
+      }
+
+      if (method === "PUT" && hadValue && field.kind === "tags") {
+        payload[field.name] = [];
+      }
+
       continue;
     }
 

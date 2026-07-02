@@ -34,6 +34,18 @@ export function getDb() {
   return db;
 }
 
+/**
+ * Closes the cached connection. Used by database-backed tests so the process
+ * can exit cleanly; the app itself never needs to call this.
+ */
+export async function closeDbClient() {
+  if (client) {
+    await client.end({ timeout: 5 });
+    client = undefined;
+    db = undefined;
+  }
+}
+
 export async function checkDbHealth() {
   if (!env.DATABASE_URL) {
     return {

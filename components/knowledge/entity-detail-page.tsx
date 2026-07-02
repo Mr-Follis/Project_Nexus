@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/page-header";
+import { EntityMediaGallery } from "@/components/media/entity-media-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import {
   getPublicGameBySlug,
   listSourcesForEntity
 } from "@/lib/db/repositories/knowledge";
+import { listPublicMediaForEntity } from "@/lib/db/repositories/media";
 import { formatDate } from "@/lib/utils/date";
 
 type EntityDetailPageProps = {
@@ -41,7 +43,7 @@ export async function EntityDetailPage({
     );
   }
 
-  const { entity, sources } = state;
+  const { entity, sources, media } = state;
 
   return (
     <div className="space-y-8 pb-12">
@@ -89,6 +91,8 @@ export async function EntityDetailPage({
           </p>
         </Card>
       ) : null}
+
+      <EntityMediaGallery assets={media} />
 
       <Card>
         <div className="flex items-start justify-between gap-4">
@@ -169,12 +173,16 @@ async function getPublishedEntity(gameSlug: string, entitySlug: string) {
       return { kind: "not-found" as const };
     }
 
-    const sources = await listSourcesForEntity(entity.id);
+    const [sources, media] = await Promise.all([
+      listSourcesForEntity(entity.id),
+      listPublicMediaForEntity(entity.id)
+    ]);
 
     return {
       kind: "ready" as const,
       entity,
-      sources
+      sources,
+      media
     };
   } catch (error) {
     return {

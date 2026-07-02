@@ -69,10 +69,12 @@ Recommended scope:
 - Done: structured media library (`media_assets`) with provenance/attribution metadata, admin management, a cinematic hero wired through it, and an unofficial trademark disclaimer — official promotional placeholders are designed to be replaced by original Project Nexus media later.
 - Done: game publish workflow — an admin Games section with a status action closes the public loop (community submission → approve → publish entity → publish game → visible on public pages, verified end-to-end).
 - Done: admin create/edit forms for games, entities, and sources — audited create (`POST /api/admin/{games,entities,sources}`) and field-edit (`PUT .../[id]`) endpoints, a shared `RecordForm` admin component, and a new Sources admin section; creates always start as drafts (a smuggled `status` is rejected) and every create/edit writes a `record_versions` audit row.
-- Pending: media asset admin create/upload form and per-entity media galleries on public pages (schema and repository support exist; only status is editable in the admin UI so far).
-- Pending: clearing an existing optional field via the admin edit forms (empty inputs are omitted from the payload rather than sent as deletions).
-- Pending: linking sources to entities from the admin UI (`entity_sources` exists; attach currently requires the repository helper).
-- Pending: focused tests around the approval-to-record and entity-publish repository paths (needs a DB-backed or integration test).
+- Done: source-to-entity linking from the admin UI — audited attach (`POST /api/admin/entities/[entityId]/sources`) and detach (`DELETE /api/admin/entity-sources/[id]`), with duplicate whole-record links rejected explicitly (the unique constraint treats NULL field names as distinct).
+- Done: media asset admin create form — audited `POST /api/admin/media` with the strict draft-only create schema (official promotional media still requires copyright owner plus source name or original URL).
+- Done: per-entity media galleries on public entity detail pages, rendered from published media with provenance and attribution.
+- Done: clearing optional fields via admin edit forms — emptying a prefilled text/date field sends null (comma lists send []), with nullable edit schemas behind it.
+- Done: DB-backed integration tests for approval-to-record, slug-collision suffixing, entity publish auditing, no-op edit skipping, and null-clear edits (skipped automatically when DATABASE_URL is absent, e.g. CI).
+- Note: `NEXT_DIST_DIR=.next-build npm run build` runs validation builds without clobbering the running dev server's `.next` cache.
 
 Defer until decisions are made:
 

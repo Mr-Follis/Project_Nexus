@@ -30,12 +30,14 @@ const atLeastOneField = {
   message: "Provide at least one field to update."
 };
 
+// Optional text-like fields accept null so an editor can clear an existing
+// value; required fields (title, slug, type, ...) never do.
 export const gameEditSchema = z
   .object({
     title: z.string().min(1).max(160).optional(),
     slug: slugSchema.optional(),
-    description: z.string().max(2000).optional(),
-    releaseDate: z.string().date().optional(),
+    description: z.string().max(2000).nullable().optional(),
+    releaseDate: z.string().date().nullable().optional(),
     platforms: z.array(z.string().min(1).max(80)).optional()
   })
   .refine(hasAtLeastOneField, atLeastOneField);
@@ -45,8 +47,8 @@ export const entityEditSchema = z
     type: entityTypeSchema.optional(),
     name: z.string().min(1).max(200).optional(),
     slug: slugSchema.optional(),
-    summary: z.string().max(1000).optional(),
-    description: z.string().max(6000).optional(),
+    summary: z.string().max(1000).nullable().optional(),
+    description: z.string().max(6000).nullable().optional(),
     verification: verificationStatusSchema.optional(),
     confidenceScore: z.number().int().min(0).max(100).optional()
   })
@@ -55,14 +57,14 @@ export const entityEditSchema = z
 export const sourceEditSchema = z
   .object({
     type: sourceTypeSchema.optional(),
-    title: z.string().min(1).max(240).optional(),
-    url: z.string().url().optional(),
-    author: z.string().max(160).optional(),
-    publishedAt: z.string().datetime().optional(),
-    accessedAt: z.string().datetime().optional(),
+    title: z.string().min(1).max(240).nullable().optional(),
+    url: z.string().url().nullable().optional(),
+    author: z.string().max(160).nullable().optional(),
+    publishedAt: z.string().datetime().nullable().optional(),
+    accessedAt: z.string().datetime().nullable().optional(),
     reliabilityScore: z.number().int().min(0).max(100).optional(),
-    permissionNotes: z.string().max(2000).optional(),
-    notes: z.string().max(4000).optional()
+    permissionNotes: z.string().max(2000).nullable().optional(),
+    notes: z.string().max(4000).nullable().optional()
   })
   .refine(hasAtLeastOneField, atLeastOneField);
 

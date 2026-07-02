@@ -67,6 +67,16 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-02 sources/media/galleries checkpoint:
+
+- Added audited source-to-entity linking: attach via `POST /api/admin/entities/[entityId]/sources` (with optional claim and field name), detach via `DELETE /api/admin/entity-sources/[id]`, linked-source lists with detach buttons and a source picker on admin entity cards. Duplicate whole-record links return 409 via an explicit pre-check because the `(entity, source, field)` unique constraint treats NULL field names as distinct (found live by a verification probe).
+- Added an audited media create workflow: `POST /api/admin/media` with a strict draft-only `mediaAssetCreateSchema`, a "New media asset" admin form (game, optional related entity, type, provenance, file path/external URL, attribution fields, featured/attribution checkboxes).
+- Added per-entity media galleries on public entity detail pages (`EntityMediaGallery`), rendering published media with provenance labels and resolved attribution.
+- Admin edit forms can now clear optional fields: emptying a prefilled text/date field submits null (comma lists submit []); edit schemas are nullable for optional columns and the repositories map null through (including timestamp columns, avoiding the `new Date(null)` epoch bug).
+- Added DB-backed integration tests (`knowledge.integration.test.ts`, skipped without DATABASE_URL): approval-to-record with audit rows, slug-collision suffixing, entity publish audit, no-op edit skipping, and null-clear edits; added `closeDbClient()` for clean test shutdown.
+- Added `distDir: process.env.NEXT_DIST_DIR || ".next"` to `next.config.mjs` so validation builds (`NEXT_DIST_DIR=.next-build npm run build`) no longer corrupt the running dev server.
+- Verified live on the dev preview: attach/detach with 409/404 guards, media create validations, gallery rendering on a temporarily published entity (then reverted `gta-6` to draft and removed all temp records), and null-clear via the API. 130 unit+integration tests, typecheck, lint, format, and isolated production build pass.
+
 2026-07-02 admin create/edit forms checkpoint:
 
 - Added audited admin create and field-edit workflows for games, entities, and sources: `POST /api/admin/{games,entities,sources}` and `PUT /api/admin/{games,entities,sources}/[id]`, with a shared `runAdminMutation` guard (auth, DB check, Zod 400s, unique-violation 409s).

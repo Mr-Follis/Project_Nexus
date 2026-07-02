@@ -94,7 +94,7 @@ export const entitySourceInputSchema = z.object({
   fieldName: z.string().max(120).optional()
 });
 
-export type GameInput = z.infer<typeof gameInputSchema>;
-export type SourceInput = z.infer<typeof sourceInputSchema>;
-export type EntityInput = z.infer<typeof entityInputSchema>;
-export type EntitySourceInput = z.infer<typeof entitySourceInputSchema>;
+export type GameInput = z.input<typeof gameInputSchema>;
+export type SourceInput = z.input<typeof sourceInputSchema>;
+export type EntityInput = z.input<typeof entityInputSchema>;
+export type EntitySourceInput = z.input<typeof entitySourceInputSchema>;

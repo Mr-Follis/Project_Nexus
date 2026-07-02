@@ -822,11 +822,13 @@ export async function updateAdminSource(
     }
 
     if (data.publishedAt !== undefined) {
-      setValues.publishedAt = new Date(data.publishedAt);
+      setValues.publishedAt =
+        data.publishedAt === null ? null : new Date(data.publishedAt);
     }
 
     if (data.accessedAt !== undefined) {
-      setValues.accessedAt = new Date(data.accessedAt);
+      setValues.accessedAt =
+        data.accessedAt === null ? null : new Date(data.accessedAt);
     }
 
     if (data.reliabilityScore !== undefined) {
