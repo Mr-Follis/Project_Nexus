@@ -67,6 +67,19 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-02 Design Reset checkpoint (three concepts, awaiting direction decision):
+
+- Direction change: stop iterating on the current UI (reads as an AI/SaaS template); redesign from first principles as "the operating system gamers leave open while they play."
+- `docs/design/DesignResearch.md` rewritten to the reset brief: per-product memorability table (incl. the key motionsites.ai finding — the dark-glass-glow aesthetic is literally purchasable, so identity must come from structure and domain vocabulary), observation sections (motion/typography/layout/navigation/hierarchy/components/mobile), and a "What makes Project Nexus different?" definition with design-language consequences.
+- Layout restructure: `AppShell` moved from the root layout into `(public)` and `admin` layouts; root layout now carries fonts only (added JetBrains Mono as `--font-mono` / `font-mono`). This lets `/concepts/*` render full-page frames with no site chrome.
+- Three switchable homepage concepts at `/concepts/*` (noindexed, floating A/B/C switcher, all reading live DB data through `lib/concepts/data.ts` with DB-less fallbacks):
+  - A `cinematic` — editorial blockbuster: full-viewport cover hero with bottom-left title lockup and vertical rail, three numbered chapters with ghost numerals and edge-bleeding official imagery, Featured Discovery spread, typographic finale. No cards.
+  - B `mission-control` — companion OS: NEXUS//OS status bar (live UTC clock, DB-link state, launch countdown), Command Search, World Status readouts with level bars, Latest Intel feed of real records, Active Objectives mission cards, gridded Tactical Map tile. Square corners, corner ticks, mono labels.
+  - C `luxury` — restraint: "Every fact. / Verified." statement typography, stats as display objects ("0 instances of speculation"), one floating framed key art, typographic index rows instead of card grids.
+- All official media renders through attribution-bearing components in every concept.
+- Validation: 130 tests, typecheck, lint, format, production build pass; all routes incl. three concepts return 200; dev server restarted cleanly for the Replit preview (learned: never run `next build` while the dev server is live — it corrupts the shared `.next` dir).
+- NEXT: user reviews the three concepts and picks a direction (recommendation: Mission Control as the system, with Cinematic's imagery treatment where the world appears and Luxury's restraint in spacing/type discipline).
+
 2026-07-02 Design Research Sprint checkpoint:
 
 - Researched motionsites.ai plus Apple, Linear, Framer, Arc, Raycast, Stripe, and Vercel; distilled findings into `docs/design/DesignResearch.md` (key observations, what to borrow vs. never copy, translation table into the Nexus design language, and a sprint roadmap).

@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 
-import { AppShell } from "@/components/layout/app-shell";
 import { siteConfig } from "@/lib/config/site";
 import "@/styles/globals.css";
 
@@ -15,6 +14,12 @@ const inter = Inter({
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
+  display: "swap"
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
   display: "swap"
 });
 
@@ -51,9 +56,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable}`}
+    >
       <body>
-        <AppShell>{children}</AppShell>
+        {children}
         <Analytics />
       </body>
     </html>

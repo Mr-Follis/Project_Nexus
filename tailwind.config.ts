@@ -15,6 +15,13 @@ const config: Config = {
           "ui-sans-serif",
           "system-ui",
           "sans-serif"
+        ],
+        mono: [
+          "var(--font-mono)",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "monospace"
         ]
       },
       colors: {
