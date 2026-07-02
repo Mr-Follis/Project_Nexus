@@ -2,15 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bot, Car, Home, Map, Menu, Search, Send, Shield } from "lucide-react";
+import {
+  Bot,
+  Home,
+  Map,
+  MapPin,
+  Menu,
+  Search,
+  Send,
+  Shield,
+  Users
+} from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/gta-6", label: "Hub", icon: Menu },
+  { href: "/gta-6/characters", label: "Characters", icon: Users },
+  { href: "/gta-6/regions", label: "Places", icon: MapPin },
   { href: "/gta-6/map", label: "Map", icon: Map },
-  { href: "/gta-6/vehicles", label: "Vehicles", icon: Car },
   { href: "/gta-6/search", label: "Search", icon: Search },
   { href: "/gta-6/submit", label: "Submit", icon: Send },
   { href: "/gta-6/ask", label: "Ask", icon: Bot },

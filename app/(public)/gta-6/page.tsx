@@ -1,5 +1,15 @@
 import Link from "next/link";
-import { Bot, Car, Crosshair, Map, Route, Search, Send } from "lucide-react";
+import {
+  Bot,
+  Car,
+  Crosshair,
+  Map,
+  MapPin,
+  Route,
+  Search,
+  Send,
+  Users
+} from "lucide-react";
 
 import { ModuleGrid } from "@/components/cards/module-grid";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +17,20 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 const modules = [
+  {
+    title: "Characters",
+    href: "/gta-6/characters",
+    description:
+      "The officially revealed cast — Jason, Lucia, and the players of Leonida — with sources on every record.",
+    icon: Users
+  },
+  {
+    title: "Places & Regions",
+    href: "/gta-6/regions",
+    description:
+      "Officially named regions of Leonida, from Vice City to the Keys, each backed by Rockstar announcements.",
+    icon: MapPin
+  },
   {
     title: "Map",
     href: "/gta-6/map",
@@ -72,20 +96,22 @@ export default function GtaSixHubPage() {
               GTA VI
             </h1>
             <p className="mt-5 max-w-2xl text-pretty text-lg leading-8 text-text-secondary">
-              The first Project Nexus hub is wired for verified records, source
-              attribution, search, map markers, and moderation intake. No
-              unverified gameplay facts are published.
+              Verified records from official Rockstar Games announcements:
+              Jason, Lucia, and the cast of Leonida, the regions they run, and
+              the trailers that revealed them — every fact sourced and
+              attributed. Launching November 19, 2026 on PS5 and Xbox Series
+              X|S.
             </p>
           </div>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild>
-              <Link href="/gta-6/map">Open map shell</Link>
+              <Link href="/gta-6/characters">Meet the cast</Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href="/gta-6/regions">Explore Leonida</Link>
             </Button>
             <Button asChild variant="secondary">
               <Link href="/gta-6/search">Search records</Link>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link href="/gta-6/submit">Submit evidence</Link>
             </Button>
           </div>
         </div>
@@ -98,12 +124,13 @@ export default function GtaSixHubPage() {
               Data status
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-text-secondary">
-              Pre-release foundation. Future records must carry source,
-              verification status, game association, moderation state, and last
-              updated metadata.
+              Published records are limited to officially confirmed information
+              from Rockstar Games sources. Every record carries source links,
+              verification status, and last-updated metadata; community
+              submissions go through moderation before anything changes here.
             </p>
           </div>
-          <Badge tone="warning">No live facts yet</Badge>
+          <Badge tone="success">Officially sourced records live</Badge>
         </div>
       </Card>
 

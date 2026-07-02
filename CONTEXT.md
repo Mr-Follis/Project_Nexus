@@ -67,6 +67,16 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-02 content launch checkpoint:
+
+- Populated the knowledge base with officially confirmed GTA VI content, entered through the audited admin APIs (not seeds): 8 characters (Jason Duval, Lucia Caminos, Cal Hampton, Boobie Ike, Dre'Quan Priest, Real Dimez, Raul Bautista, Brian Heder) and 7 regions (Leonida, Vice City, Leonida Keys, Grassrivers, Port Gellhorn, Ambrosia, Mount Kalaga National Park), all `confirmed_official` with summaries written in our own words.
+- Added 3 official source records (Trailer 1 Newswire post, Trailer 2 video page, November 19 2026 release-date Newswire post) alongside the seeded official-site and Newswire sources; every entity is linked to the official GTA VI site source, protagonists also to Trailer 2, Vice City also to Trailer 1.
+- Added 2 official-promotional trailer media records (external YouTube links only — no downloaded binaries) with full copyright/source/original-URL attribution.
+- Updated and published the `gta-6` game record: description, release date 2026-11-19, platforms PS5 / Xbox Series X|S. Facts verified via web search against rockstargames.com and the official Newswire before entry.
+- Added public `/gta-6/characters` and `/gta-6/regions` category pages (shared category component), hub tiles, nav links, sitemap and route-smoke coverage; refreshed the GTA VI hub hero and data-status copy to reflect live sourced records.
+- Fixed CI: `package-lock.json` contained Replit package-firewall URLs that GitHub Actions cannot resolve — rewrote `resolved` URLs to registry.npmjs.org (integrity hashes unchanged) and pinned npm 11 in the workflow. The Validate workflow now passes on GitHub.
+- Verified live: characters/regions pages, entity detail with source attribution, search, sitemap, and public API all render the published records. 130 tests, typecheck, lint, format pass.
+
 2026-07-02 sources/media/galleries checkpoint:
 
 - Added audited source-to-entity linking: attach via `POST /api/admin/entities/[entityId]/sources` (with optional claim and field name), detach via `DELETE /api/admin/entity-sources/[id]`, linked-source lists with detach buttons and a source picker on admin entity cards. Duplicate whole-record links return 409 via an explicit pre-check because the `(entity, source, field)` unique constraint treats NULL field names as distinct (found live by a verification probe).

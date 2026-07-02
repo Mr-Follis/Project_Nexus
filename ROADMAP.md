@@ -52,6 +52,11 @@ Current environment stance:
 - Persistent zero-result logging needs a schema decision before implementation.
 - `zipFile.zip` needs review before deciding whether to keep it.
 
+## Content Status
+
+- The GTA VI hub is live with officially confirmed content: published game record (release date, platforms), 8 characters, 7 Leonida regions, 5 official source records, and 2 official trailer media records — all sourced, attributed, and entered through the audited admin workflow.
+- Public category pages now cover characters and regions in addition to vehicles/weapons/missions; vehicles, weapons, and missions stay empty until officially confirmed records exist.
+
 ## Next Sprint Recommendation
 
 Recommended next sprint: Admin hardening and knowledge management foundation.
