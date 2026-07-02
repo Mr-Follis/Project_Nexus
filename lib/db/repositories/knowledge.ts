@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, or } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, isNull, or } from "drizzle-orm";
 
 import {
   entities,
@@ -39,6 +39,7 @@ import {
 } from "@/lib/validation/entity-admin";
 import {
   buildRecordCreateAuditEvent,
+  buildRecordDeleteAuditEvent,
   buildRecordEditAuditEvent,
   diffRecordFields,
   entityCreateSchema,
@@ -856,6 +857,122 @@ export async function updateAdminSource(
     );
 
     return source;
+  });
+}
+
+/**
+ * Linked sources for a batch of entities in one query, keyed for the admin
+ * page. Includes the entity_sources id so links can be detached.
+ */
+export async function listAdminEntitySources(entityIds: string[]) {
+  if (entityIds.length === 0) {
+    return [];
+  }
+
+  const db = getDb();
+
+  return db
+    .select({
+      id: entitySources.id,
+      entityId: entitySources.entityId,
+      claim: entitySources.claim,
+      fieldName: entitySources.fieldName,
+      source: sources
+    })
+    .from(entitySources)
+    .innerJoin(sources, eq(entitySources.sourceId, sources.id))
+    .where(inArray(entitySources.entityId, entityIds))
+    .orderBy(desc(entitySources.createdAt));
+}
+
+export async function attachAdminEntitySource(
+  input: EntitySourceInput,
+  options: { reviewerId: string }
+) {
+  const data = entitySourceInputSchema.parse(input);
+  const db = getDb();
+
+  return db.transaction(async (tx) => {
+    // The (entity, source, field) unique constraint treats NULL field names
+    // as distinct, so duplicates must be rejected explicitly for the common
+    // whole-record link where no field name is given.
+    const [existing] = await tx
+      .select({ id: entitySources.id })
+      .from(entitySources)
+      .where(
+        and(
+          eq(entitySources.entityId, data.entityId),
+          eq(entitySources.sourceId, data.sourceId),
+          data.fieldName == null
+            ? isNull(entitySources.fieldName)
+            : eq(entitySources.fieldName, data.fieldName)
+        )
+      )
+      .limit(1);
+
+    if (existing) {
+      return null;
+    }
+
+    const [entitySource] = await tx
+      .insert(entitySources)
+      .values(data)
+      .onConflictDoNothing()
+      .returning();
+
+    if (!entitySource) {
+      return null;
+    }
+
+    await tx.insert(recordVersions).values(
+      buildRecordCreateAuditEvent({
+        tableName: "entity_sources",
+        recordId: entitySource.id,
+        data,
+        reviewerId: options.reviewerId
+      })
+    );
+
+    return entitySource;
+  });
+}
+
+export async function detachAdminEntitySource(
+  id: string,
+  options: { reviewerId: string }
+) {
+  const db = getDb();
+  const [current] = await db
+    .select()
+    .from(entitySources)
+    .where(eq(entitySources.id, id))
+    .limit(1);
+
+  if (!current) {
+    return null;
+  }
+
+  return db.transaction(async (tx) => {
+    const [removed] = await tx
+      .delete(entitySources)
+      .where(eq(entitySources.id, id))
+      .returning();
+
+    await tx.insert(recordVersions).values(
+      buildRecordDeleteAuditEvent({
+        tableName: "entity_sources",
+        recordId: id,
+        previousData: {
+          entityId: current.entityId,
+          sourceId: current.sourceId,
+          claim: current.claim,
+          fieldName: current.fieldName
+        },
+        reviewerId: options.reviewerId
+      })
+    );
+
+    return removed;
   });
 }
 

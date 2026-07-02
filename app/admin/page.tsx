@@ -4,6 +4,7 @@ import {
   AdminLogin,
   AdminLogoutButton
 } from "@/components/admin/admin-session";
+import { InlineActionButton } from "@/components/admin/inline-action-button";
 import {
   RecordForm,
   type RecordFieldConfig
@@ -18,6 +19,7 @@ import { getAdminSession } from "@/lib/auth/session";
 import { getDatabaseUrl } from "@/lib/db/client";
 import {
   listAdminEntities,
+  listAdminEntitySources,
   listAdminSources,
   listGames,
   listModerationSubmissions
@@ -258,40 +260,88 @@ export default async function AdminPage() {
           />
         ) : null}
         {state.entities.length > 0 ? (
-          state.entities.map(({ entity, game }) => (
-            <Card key={entity.id}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge tone={getStatusTone(entity.status)}>
-                  {formatStatus(entity.status)}
-                </Badge>
-                <Badge>{game.title}</Badge>
-                <Badge>{entity.type}</Badge>
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-text-primary">
-                {entity.name}
-              </h3>
-              {entity.summary ? (
-                <p className="mt-2 text-sm leading-6 text-text-secondary">
-                  {entity.summary}
-                </p>
-              ) : null}
-              <div className="mt-3 text-xs font-medium text-text-muted">
-                Updated {formatDate(entity.updatedAt)}
-              </div>
-              <RecordForm
-                endpoint={`/api/admin/entities/${entity.id}`}
-                method="PUT"
-                fields={buildEntityFields({ entity })}
-                toggleLabel="Edit entity"
-                submitLabel="Save changes"
-                successMessage="Entity updated."
-              />
-              <StatusActions
-                endpoint={`/api/admin/entities/${entity.id}`}
-                currentStatus={entity.status}
-              />
-            </Card>
-          ))
+          state.entities.map(({ entity, game }) => {
+            const linkedSources = state.entitySourceLinks.filter(
+              (link) => link.entityId === entity.id
+            );
+
+            return (
+              <Card key={entity.id}>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge tone={getStatusTone(entity.status)}>
+                    {formatStatus(entity.status)}
+                  </Badge>
+                  <Badge>{game.title}</Badge>
+                  <Badge>{entity.type}</Badge>
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-text-primary">
+                  {entity.name}
+                </h3>
+                {entity.summary ? (
+                  <p className="mt-2 text-sm leading-6 text-text-secondary">
+                    {entity.summary}
+                  </p>
+                ) : null}
+                <div className="mt-3 text-xs font-medium text-text-muted">
+                  Updated {formatDate(entity.updatedAt)}
+                </div>
+                <div className="mt-4 space-y-2 border-t border-white/10 pt-4">
+                  <p className="text-xs font-medium text-text-muted">
+                    Linked sources
+                  </p>
+                  {linkedSources.length > 0 ? (
+                    linkedSources.map((link) => (
+                      <div
+                        key={link.id}
+                        className="flex flex-wrap items-center gap-3 text-sm text-text-secondary"
+                      >
+                        <span className="min-w-0">
+                          {link.source.title ?? "Untitled source"}
+                          <span className="text-text-muted">
+                            {" "}
+                            ({formatStatus(link.source.type)})
+                          </span>
+                          {link.claim ? ` — ${link.claim}` : null}
+                        </span>
+                        <InlineActionButton
+                          endpoint={`/api/admin/entity-sources/${link.id}`}
+                          method="DELETE"
+                          label="Detach"
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-text-muted">
+                      No sources linked yet. Public factual records should cite
+                      at least one source before publishing.
+                    </p>
+                  )}
+                  {state.sources.length > 0 ? (
+                    <RecordForm
+                      endpoint={`/api/admin/entities/${entity.id}/sources`}
+                      method="POST"
+                      fields={buildEntitySourceFields(state.sources)}
+                      toggleLabel="Link source"
+                      submitLabel="Attach source"
+                      successMessage="Source linked."
+                    />
+                  ) : null}
+                </div>
+                <RecordForm
+                  endpoint={`/api/admin/entities/${entity.id}`}
+                  method="PUT"
+                  fields={buildEntityFields({ entity })}
+                  toggleLabel="Edit entity"
+                  submitLabel="Save changes"
+                  successMessage="Entity updated."
+                />
+                <StatusActions
+                  endpoint={`/api/admin/entities/${entity.id}`}
+                  currentStatus={entity.status}
+                />
+              </Card>
+            );
+          })
         ) : (
           <Card>
             <p className="text-sm leading-6 text-text-secondary">
@@ -436,6 +486,9 @@ type AdminEntity = Awaited<ReturnType<typeof listAdminEntities>>[number];
 type AdminMedia = Awaited<ReturnType<typeof listAdminMedia>>[number];
 type AdminGame = Awaited<ReturnType<typeof listGames>>[number];
 type AdminSource = Awaited<ReturnType<typeof listAdminSources>>[number];
+type AdminEntitySourceLink = Awaited<
+  ReturnType<typeof listAdminEntitySources>
+>[number];
 
 async function getModerationState() {
   if (!getDatabaseUrl()) {
@@ -450,7 +503,8 @@ async function getModerationState() {
       entities: [] as AdminEntity[],
       media: [] as AdminMedia[],
       games: [] as AdminGame[],
-      sources: [] as AdminSource[]
+      sources: [] as AdminSource[],
+      entitySourceLinks: [] as AdminEntitySourceLink[]
     };
   }
 
@@ -462,6 +516,9 @@ async function getModerationState() {
       listGames(),
       listAdminSources({ limit: 25 })
     ]);
+    const entitySourceLinks = await listAdminEntitySources(
+      entities.map(({ entity }) => entity.id)
+    );
     const newCount = submissions.filter(
       ({ submission }) => submission.status === "new"
     ).length;
@@ -485,7 +542,8 @@ async function getModerationState() {
       entities,
       media,
       games,
-      sources
+      sources,
+      entitySourceLinks
     };
   } catch (error) {
     return {
@@ -502,7 +560,8 @@ async function getModerationState() {
       entities: [] as AdminEntity[],
       media: [] as AdminMedia[],
       games: [] as AdminGame[],
-      sources: [] as AdminSource[]
+      sources: [] as AdminSource[],
+      entitySourceLinks: [] as AdminEntitySourceLink[]
     };
   }
 }
@@ -632,6 +691,36 @@ function buildEntityFields(
   );
 
   return fields;
+}
+
+function buildEntitySourceFields(sources: AdminSource[]): RecordFieldConfig[] {
+  return [
+    {
+      name: "sourceId",
+      label: "Source",
+      kind: "select",
+      required: true,
+      options: sources.map(({ source }) => ({
+        value: source.id,
+        label: source.title
+          ? `${source.title} (${formatStatus(source.type)})`
+          : formatStatus(source.type)
+      }))
+    },
+    {
+      name: "fieldName",
+      label: "Field (optional)",
+      kind: "text",
+      placeholder: "top_speed",
+      help: "Name the specific field this source backs, if any."
+    },
+    {
+      name: "claim",
+      label: "Claim (optional)",
+      kind: "textarea",
+      placeholder: "What does this source support?"
+    }
+  ];
 }
 
 function buildSourceFields(

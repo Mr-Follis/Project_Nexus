@@ -148,6 +148,29 @@ export function buildRecordCreateAuditEvent(input: {
   };
 }
 
+export function buildRecordDeleteAuditEvent(input: {
+  tableName: string;
+  recordId: string;
+  previousData: Record<string, unknown>;
+  reviewerId: string;
+  changedAt?: Date;
+}) {
+  const changedAt = input.changedAt ?? new Date();
+
+  return {
+    tableName: input.tableName,
+    recordId: input.recordId,
+    previousData: input.previousData,
+    newData: {
+      deleted: true,
+      reviewerId: input.reviewerId,
+      changedAt: changedAt.toISOString()
+    },
+    changedFields: Object.keys(input.previousData),
+    changeReason: `Deleted via admin.`
+  };
+}
+
 export function buildRecordEditAuditEvent(input: {
   tableName: string;
   recordId: string;

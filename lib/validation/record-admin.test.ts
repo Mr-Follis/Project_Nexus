@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildRecordCreateAuditEvent,
+  buildRecordDeleteAuditEvent,
   buildRecordEditAuditEvent,
   diffRecordFields,
   entityCreateSchema,
@@ -147,6 +148,28 @@ describe("audit event builders", () => {
       reviewerId: "dev-admin",
       changedAt: "2026-07-02T00:00:00.000Z"
     });
+  });
+
+  it("builds a delete event preserving the removed data", () => {
+    const event = buildRecordDeleteAuditEvent({
+      tableName: "entity_sources",
+      recordId: "00000000-0000-4000-8000-000000000077",
+      previousData: {
+        entityId: "00000000-0000-4000-8000-000000000009",
+        sourceId: "00000000-0000-4000-8000-000000000042"
+      },
+      reviewerId: "dev-admin"
+    });
+
+    expect(event.changeReason).toBe("Deleted via admin.");
+    expect(event.previousData).toMatchObject({
+      sourceId: "00000000-0000-4000-8000-000000000042"
+    });
+    expect(event.newData).toMatchObject({
+      deleted: true,
+      reviewerId: "dev-admin"
+    });
+    expect(event.changedFields).toEqual(["entityId", "sourceId"]);
   });
 
   it("builds an edit event naming the changed fields", () => {
