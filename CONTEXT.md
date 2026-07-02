@@ -67,6 +67,17 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-02 Design Rescue Sprint 1 checkpoint:
+
+- Added a reusable presentation kit: `HeroShell` (full-bleed cinematic hero with backdrop, scrims, attribution chip, entrance motion), `SectionHeader`, `StatCard`, `FeatureCard` (now also powers `ModuleGrid`), `MediaPanel` (showcase image panel with hover zoom and mandatory attribution), and `SourceBadge` (verification shield — green for confirmed levels, neutral otherwise).
+- Rebuilt the homepage: taller cinematic hero over the official key art, live content stats (via new read-only `getPublicContentStats`), user-facing feature cards, an official-archive media showcase (via new `listPublicMediaForGame`), and the data-first band.
+- Rebuilt the GTA VI hub: HeroShell with per-category live stat strip, ten user-facing module tiles, and a "How records earn their place" note.
+- New header (brand block with "Unofficial companion" tagline, refined pill nav with prefix-aware active states, hairline accent under the header) and a structured footer (brand column, Explore/Community link columns, single legal note).
+- Fixed the duplicated disclaimer: the homepage no longer renders its own copy; the disclaimer lives once in the footer (component documents this).
+- Category pages: `SourceBadge` on record cards and a proper empty state (icon, explanation, Submit evidence / Back to hub CTAs); entity detail header also uses `SourceBadge`.
+- Mobile-first passes: svh-based hero heights, 2-col stat grids on small screens, scrollbar-less nav pills with labels appearing at lg, responsive type scale.
+- All 14 public/admin routes return 200; disclaimer text appears exactly once on the homepage; 130 tests, typecheck, lint, format, and isolated production build pass.
+
 2026-07-02 edition-content checkpoint:
 
 - Added 11 more officially confirmed entities from Rockstar's pre-order/editions announcement (verified via the official Newswire and press coverage): vehicles Shitzu Squalo, '67 Vapid Dominator Buggy, Vapid Ganado Retro Build; shops Rideout Customs, Sara's Unisex Salon, Stock 305, Electric Fang Tattoo, One-Eyed Willie's, PTT YOUNGIN$ Illegal Goods Store; activity Wyman's Classic Car Collection; other Goodtime Gear — each with 1-2 official screenshots and dual source links (pre-order Newswire + media downloads page).

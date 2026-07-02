@@ -6,6 +6,7 @@ import { EntityMediaGallery } from "@/components/media/entity-media-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SourceBadge } from "@/components/ui/source-badge";
 import { getDatabaseUrl } from "@/lib/db/client";
 import {
   getPublicEntityBySlug,
@@ -56,7 +57,7 @@ export async function EntityDetailPage({
         }
         actions={
           <>
-            <Badge tone="default">{entity.verification}</Badge>
+            <SourceBadge verification={entity.verification} />
             <Button asChild variant="secondary">
               <Link href={getCategoryPath(entity.type)}>Back to category</Link>
             </Button>

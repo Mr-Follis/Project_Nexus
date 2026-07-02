@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 
 import { games, mediaAssets, recordVersions } from "@/db/schema";
 import { getDb } from "@/lib/db/client";
@@ -63,6 +63,31 @@ export async function getFeaturedMediaForGame(gameId: string) {
     .limit(1);
 
   return asset ?? null;
+}
+
+export async function listPublicMediaForGame(
+  gameId: string,
+  options: {
+    types?: Array<"screenshot" | "key_art" | "artwork">;
+    limit?: number;
+  } = {}
+) {
+  const db = getDb();
+  const filters = [
+    eq(mediaAssets.gameId, gameId),
+    eq(mediaAssets.status, "published")
+  ];
+
+  if (options.types && options.types.length > 0) {
+    filters.push(inArray(mediaAssets.type, options.types));
+  }
+
+  return db
+    .select()
+    .from(mediaAssets)
+    .where(and(...filters))
+    .orderBy(desc(mediaAssets.updatedAt))
+    .limit(options.limit ?? 6);
 }
 
 export async function listPublicMediaForEntity(entityId: string) {

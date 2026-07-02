@@ -3,7 +3,9 @@ import Link from "next/link";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SourceBadge } from "@/components/ui/source-badge";
 import { getDatabaseUrl } from "@/lib/db/client";
 import {
   getPublicGameBySlug,
@@ -44,22 +46,6 @@ export async function EntityCategoryPage({
         }
       />
 
-      <Card>
-        <div className="flex items-start gap-4">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-nexus bg-white/[0.08]">
-            <Icon className="h-5 w-5 text-accent-secondary" aria-hidden />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-text-primary">
-              Published records
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-text-secondary">
-              {state.message}
-            </p>
-          </div>
-        </div>
-      </Card>
-
       {state.entities.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
           {state.entities.map((entity) => (
@@ -68,28 +54,54 @@ export async function EntityCategoryPage({
               href={`/gta-6/entities/${entity.slug}`}
               className="group block"
             >
-              <Card className="h-full transition duration-200 ease-standard group-hover:-translate-y-1 group-hover:border-accent-secondary/50">
+              <Card className="h-full transition duration-200 ease-standard group-hover:-translate-y-1 group-hover:border-accent-secondary/50 group-hover:shadow-glow">
                 <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-lg font-semibold text-text-primary">
-                      {entity.name}
-                    </h2>
-                    {entity.summary ? (
-                      <p className="mt-3 text-sm leading-6 text-text-secondary">
-                        {entity.summary}
-                      </p>
-                    ) : null}
-                    <p className="mt-4 text-xs font-medium text-text-muted">
-                      Last updated {formatDate(entity.updatedAt)}
-                    </p>
-                  </div>
-                  <Badge tone="default">{entity.verification}</Badge>
+                  <h2 className="text-lg font-semibold tracking-tight text-text-primary">
+                    {entity.name}
+                  </h2>
+                  <SourceBadge
+                    verification={entity.verification}
+                    className="shrink-0"
+                  />
                 </div>
+                {entity.summary ? (
+                  <p className="mt-3 text-sm leading-6 text-text-secondary">
+                    {entity.summary}
+                  </p>
+                ) : null}
+                <p className="mt-4 text-xs font-medium text-text-muted">
+                  Last updated {formatDate(entity.updatedAt)}
+                </p>
               </Card>
             </Link>
           ))}
         </div>
-      ) : null}
+      ) : (
+        <Card className="border-dashed">
+          <div className="mx-auto flex max-w-xl flex-col items-center py-10 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.05]">
+              <Icon
+                className="h-6 w-6 text-accent-secondary"
+                aria-hidden="true"
+              />
+            </div>
+            <h2 className="mt-6 text-xl font-semibold tracking-tight text-text-primary">
+              Nothing confirmed here yet
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-text-secondary">
+              {state.message}
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button asChild variant="secondary">
+                <Link href="/gta-6/submit">Submit evidence</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href="/gta-6">Back to the hub</Link>
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
@@ -127,7 +139,7 @@ async function getPublishedEntities(gameSlug: string, entityType: EntityType) {
       message:
         entities.length > 0
           ? "These records are loaded from published knowledge graph entries."
-          : "No published records exist for this category yet. Empty fields stay empty until sourced and reviewed data is available.",
+          : "No published records exist for this category yet. Empty sections stay empty until officially sourced and reviewed data is available — nothing is generated to fill space.",
       entities
     };
   } catch (error) {

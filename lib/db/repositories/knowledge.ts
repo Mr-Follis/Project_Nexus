@@ -1,10 +1,11 @@
-import { and, desc, eq, ilike, inArray, isNull, or } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, isNull, or, sql } from "drizzle-orm";
 
 import {
   entities,
   entitySources,
   games,
   mapMarkers,
+  mediaAssets,
   recordVersions,
   sources,
   submissions,
@@ -546,6 +547,58 @@ async function resolveAvailableEntitySlug(
 
   const suffix = submissionId.replace(/-/g, "").slice(0, 8);
   return `${baseSlug.slice(0, 111)}-${suffix}`;
+}
+
+/**
+ * Read-only counts for public presentation (hero stat strips). Everything is
+ * scoped to published records of one published game.
+ */
+export async function getPublicContentStats(gameSlug: string) {
+  const db = getDb();
+  const game = await getPublicGameBySlug(gameSlug);
+
+  if (!game) {
+    return null;
+  }
+
+  const [byType, [mediaCount], [sourceCount]] = await Promise.all([
+    db
+      .select({ type: entities.type, count: sql<number>`count(*)::int` })
+      .from(entities)
+      .where(
+        and(eq(entities.gameId, game.id), eq(entities.status, "published"))
+      )
+      .groupBy(entities.type),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(mediaAssets)
+      .where(
+        and(
+          eq(mediaAssets.gameId, game.id),
+          eq(mediaAssets.status, "published")
+        )
+      ),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(sources)
+      .where(and(eq(sources.gameId, game.id), eq(sources.type, "official")))
+  ]);
+
+  const entityCounts: Record<string, number> = {};
+  let totalEntities = 0;
+
+  for (const row of byType) {
+    entityCounts[row.type] = row.count;
+    totalEntities += row.count;
+  }
+
+  return {
+    game,
+    totalEntities,
+    entityCounts,
+    mediaCount: mediaCount?.count ?? 0,
+    officialSourceCount: sourceCount?.count ?? 0
+  };
 }
 
 export async function listAdminEntities(options: { limit?: number } = {}) {

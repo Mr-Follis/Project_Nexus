@@ -52,6 +52,15 @@ a {
   background: rgb(var(--color-accent-primary) / 0.35);
 }
 
+/* Horizontal pill bars (nav) scroll without a visible scrollbar. */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

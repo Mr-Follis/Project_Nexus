@@ -13,10 +13,14 @@ import {
 } from "lucide-react";
 
 import { ModuleGrid } from "@/components/cards/module-grid";
-import { HeroBackdrop } from "@/components/media/hero-backdrop";
+import { StatCard } from "@/components/cards/stat-card";
+import { HeroShell } from "@/components/layout/hero-shell";
+import { SectionHeader } from "@/components/layout/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getDatabaseUrl } from "@/lib/db/client";
+import { getPublicContentStats } from "@/lib/db/repositories/knowledge";
 import { getGameHeroMedia } from "@/lib/media/hero";
 
 export const dynamic = "force-dynamic";
@@ -37,25 +41,11 @@ const modules = [
     icon: MapPin
   },
   {
-    title: "Map",
-    href: "/gta-6/map",
-    description:
-      "Placeholder for future MapLibre layers, markers, filters, and detail sheets.",
-    icon: Map
-  },
-  {
     title: "Vehicles",
     href: "/gta-6/vehicles",
     description:
-      "Database-ready route for vehicle records, verification states, and comparisons.",
+      "Officially pictured rides, from the '55 Vapid Stanier to the Shitzu Squalo, with galleries and sources.",
     icon: Car
-  },
-  {
-    title: "Weapons",
-    href: "/gta-6/weapons",
-    description:
-      "Placeholder list route for future weapon records, stats, and unlocks.",
-    icon: Crosshair
   },
   {
     title: "Shops & Services",
@@ -65,57 +55,68 @@ const modules = [
     icon: Store
   },
   {
+    title: "Weapons",
+    href: "/gta-6/weapons",
+    description:
+      "Confirmed weapons like the Hawk & Little Morgan Revolvers — stats stay empty until officially verified.",
+    icon: Crosshair
+  },
+  {
+    title: "Map",
+    href: "/gta-6/map",
+    description:
+      "The map shell, ready for verified markers as official location details emerge.",
+    icon: Map
+  },
+  {
     title: "Missions",
     href: "/gta-6/missions",
     description:
-      "Mission guide shell prepared for spoiler controls, rewards, and related records.",
+      "Mission guides with spoiler controls will live here once verified story details exist.",
     icon: Route
   },
   {
     title: "Search",
     href: "/gta-6/search",
     description:
-      "Published-record search using the PostgreSQL fallback until a dedicated search provider is selected.",
+      "Search every published record — characters, places, vehicles, shops, and more.",
     icon: Search
   },
   {
-    title: "Submit",
+    title: "Submit evidence",
     href: "/gta-6/submit",
     description:
-      "Community evidence intake that creates moderation records without publishing submitted content.",
+      "Send screenshots and sources into the moderation queue and help grow the database.",
     icon: Send
   },
   {
     title: "Ask Nexus",
     href: "/gta-6/ask",
     description:
-      "Non-live assistant placeholder. Future AI will answer only from approved data.",
+      "The future assistant will answer from approved records only — no invented facts.",
     icon: Bot
   }
 ];
 
 export default async function GtaSixHubPage() {
-  const heroMedia = await getGameHeroMedia("gta-6");
+  const [heroMedia, stats] = await Promise.all([
+    getGameHeroMedia("gta-6"),
+    getStats()
+  ]);
 
   return (
-    <div className="space-y-10 pb-12">
-      <section className="relative left-1/2 min-h-[620px] w-screen -translate-x-1/2 overflow-hidden border-b border-white/10">
-        <HeroBackdrop media={heroMedia} />
-
-        <div className="relative mx-auto flex min-h-[620px] max-w-6xl flex-col justify-end px-4 pb-12 pt-24 sm:px-6">
-          <Badge tone="accent">Game hub foundation</Badge>
-          <div className="mt-6 max-w-3xl">
-            <h1 className="text-balance text-5xl font-semibold text-text-primary sm:text-7xl">
-              GTA VI
-            </h1>
-            <p className="mt-5 max-w-2xl text-pretty text-lg leading-8 text-text-secondary">
-              Verified records from official Rockstar Games announcements:
-              Jason, Lucia, and the cast of Leonida, the regions they run, and
-              the trailers that revealed them — every fact sourced and
-              attributed. Launching November 19, 2026 on PS5 and Xbox Series
-              X|S.
-            </p>
-          </div>
+    <div className="space-y-16 pb-4 sm:space-y-20">
+      <HeroShell media={heroMedia}>
+        <div className="max-w-3xl">
+          <Badge tone="accent">Unofficial companion hub</Badge>
+          <h1 className="mt-6 text-balance text-5xl font-bold tracking-tight text-text-primary sm:text-7xl">
+            GTA VI
+          </h1>
+          <p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-text-secondary sm:text-lg sm:leading-8">
+            Jason and Lucia. The state of Leonida. November 19, 2026 on PS5 and
+            Xbox Series X|S. Everything here is sourced from official Rockstar
+            Games announcements — and labelled when it isn&apos;t confirmed.
+          </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild>
               <Link href="/gta-6/characters">Meet the cast</Link>
@@ -123,18 +124,52 @@ export default async function GtaSixHubPage() {
             <Button asChild variant="secondary">
               <Link href="/gta-6/regions">Explore Leonida</Link>
             </Button>
-            <Button asChild variant="secondary">
-              <Link href="/gta-6/search">Search records</Link>
-            </Button>
           </div>
         </div>
+
+        {stats ? (
+          <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4">
+            <StatCard
+              tone="cyan"
+              value={String(stats.entityCounts.character ?? 0)}
+              label="Characters"
+            />
+            <StatCard
+              tone="amber"
+              value={String(stats.entityCounts.region ?? 0)}
+              label="Places & regions"
+            />
+            <StatCard
+              tone="violet"
+              value={String(
+                (stats.entityCounts.vehicle ?? 0) +
+                  (stats.entityCounts.weapon ?? 0)
+              )}
+              label="Vehicles & weapons"
+            />
+            <StatCard
+              tone="green"
+              value={String(stats.entityCounts.shop ?? 0)}
+              label="Shops & services"
+            />
+          </div>
+        ) : null}
+      </HeroShell>
+
+      <section className="space-y-8">
+        <SectionHeader
+          eyebrow="The database"
+          title="Explore everything on record"
+          description="Every module below reads from the same verified knowledge layer. If a section looks light, it is because Rockstar has not confirmed more — not because we stopped looking."
+        />
+        <ModuleGrid modules={modules} />
       </section>
 
       <Card>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-text-primary">
-              Data status
+            <h2 className="text-lg font-semibold tracking-tight text-text-primary">
+              How records earn their place
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-text-secondary">
               Published records are limited to officially confirmed information
@@ -143,11 +178,23 @@ export default async function GtaSixHubPage() {
               submissions go through moderation before anything changes here.
             </p>
           </div>
-          <Badge tone="success">Officially sourced records live</Badge>
+          <Badge tone="success" className="shrink-0">
+            Officially sourced
+          </Badge>
         </div>
       </Card>
-
-      <ModuleGrid modules={modules} />
     </div>
   );
+}
+
+async function getStats() {
+  if (!getDatabaseUrl()) {
+    return null;
+  }
+
+  try {
+    return await getPublicContentStats("gta-6");
+  } catch {
+    return null;
+  }
 }
