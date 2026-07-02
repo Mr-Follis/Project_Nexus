@@ -16,6 +16,7 @@ const routeFiles: Record<(typeof requiredRouteSmokePaths)[number], string> = {
   "/gta-6/vehicles": "app/(public)/gta-6/vehicles/page.tsx",
   "/gta-6/weapons": "app/(public)/gta-6/weapons/page.tsx",
   "/gta-6/missions": "app/(public)/gta-6/missions/page.tsx",
+  "/gta-6/shops": "app/(public)/gta-6/shops/page.tsx",
   "/admin": "app/admin/page.tsx"
 };
 
@@ -32,6 +33,7 @@ describe("public route smoke coverage", () => {
       "/gta-6/vehicles",
       "/gta-6/weapons",
       "/gta-6/missions",
+      "/gta-6/shops",
       "/admin"
     ]);
   });

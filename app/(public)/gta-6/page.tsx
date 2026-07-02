@@ -8,6 +8,7 @@ import {
   Route,
   Search,
   Send,
+  Store,
   Users
 } from "lucide-react";
 
@@ -55,6 +56,13 @@ const modules = [
     description:
       "Placeholder list route for future weapon records, stats, and unlocks.",
     icon: Crosshair
+  },
+  {
+    title: "Shops & Services",
+    href: "/gta-6/shops",
+    description:
+      "Officially revealed stores, salons, and mod shops across Leonida, from Rideout Customs to Electric Fang.",
+    icon: Store
   },
   {
     title: "Missions",

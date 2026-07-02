@@ -67,6 +67,13 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-02 edition-content checkpoint:
+
+- Added 11 more officially confirmed entities from Rockstar's pre-order/editions announcement (verified via the official Newswire and press coverage): vehicles Shitzu Squalo, '67 Vapid Dominator Buggy, Vapid Ganado Retro Build; shops Rideout Customs, Sara's Unisex Salon, Stock 305, Electric Fang Tattoo, One-Eyed Willie's, PTT YOUNGIN$ Illegal Goods Store; activity Wyman's Classic Car Collection; other Goodtime Gear — each with 1-2 official screenshots and dual source links (pre-order Newswire + media downloads page).
+- Added a public `/gta-6/shops` category page and hub tile; fixed entity-detail back-links with an explicit type-to-path map (activity/other now fall back to the hub instead of a `${type}s` 404).
+- Totals: 29 published entities (8 characters, 7 regions, 5 vehicles, 6 shops, 1 weapon, 1 activity, 1 other), 57 published media assets, 7 sources, 43 entity-source links, 226 audit rows.
+- Remaining unused pack assets: Vintage Vice City outfit/exclusive-looks shots and weapon pattern/variant images (cosmetic sub-items, no clear entity type).
+
 2026-07-02 media launch checkpoint:
 
 - Downloaded Rockstar's officially provided GTA VI media packs from the first-party downloads page (`rockstargames.com/VI/media` → `media.rockstargames.com/VI/downloads/...`) — these zips are Rockstar's sanctioned distribution, not scraping. Selected 34 screenshots plus the official key art, resized to 1600px JPEGs (~6MB total) under `public/images/media/gta-6/`.

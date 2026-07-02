@@ -58,7 +58,7 @@ export async function EntityDetailPage({
           <>
             <Badge tone="default">{entity.verification}</Badge>
             <Button asChild variant="secondary">
-              <Link href={`/gta-6/${entity.type}s`}>Back to category</Link>
+              <Link href={getCategoryPath(entity.type)}>Back to category</Link>
             </Button>
           </>
         }
@@ -136,6 +136,21 @@ export async function EntityDetailPage({
       </Card>
     </div>
   );
+}
+
+const CATEGORY_PATHS: Record<string, string> = {
+  character: "/gta-6/characters",
+  region: "/gta-6/regions",
+  vehicle: "/gta-6/vehicles",
+  weapon: "/gta-6/weapons",
+  mission: "/gta-6/missions",
+  shop: "/gta-6/shops"
+};
+
+// Types without a dedicated category page (activity, other, ...) fall back
+// to the game hub instead of a naive `${type}s` 404.
+function getCategoryPath(entityType: string) {
+  return CATEGORY_PATHS[entityType] ?? "/gta-6";
 }
 
 function EntityFact({ label, value }: { label: string; value: string }) {
