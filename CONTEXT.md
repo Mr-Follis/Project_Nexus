@@ -67,6 +67,15 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-02 Design Mode Sprint 1 (Premium Visual System) checkpoint:
+
+- Added Space Grotesk as the display typeface (`--font-display` / `font-display` Tailwind family, Inter fallback) and applied it to every heading surface: hero H1s, PageHeader, SectionHeader, PlaceholderPanel, StatCard values, and the header/footer wordmarks.
+- Split the monolithic `SiteShell` into an `AppShell` frame plus `LegalFooter`; `site-shell.tsx` remains as a deprecated re-export so older imports keep working. The shell background now layers violet/cyan radial glows behind the fixed glass header.
+- Added `MobileNav`, an app-style bottom tab bar (Home / Hub / Search / Map / Submit) shown below `md` with safe-area padding; the desktop pill nav is hidden on phones and the main column/footer reserve bottom space for the bar.
+- Upgraded `Card` with a subtle elevated-to-surface vertical gradient and a top hairline highlight.
+- Added `CTASection` (gradient-bordered closing call-to-action band with ambient glows) and used it to close the homepage with Submit evidence / Ask Nexus actions.
+- Validation: 130 unit tests, typecheck, lint, and Prettier pass; production build succeeds; all 13 public/admin routes return 200; the legal disclaimer still renders exactly once per page (second match is the RSC payload script, not visible DOM).
+
 2026-07-02 Design Rescue Sprint 1 checkpoint:
 
 - Added a reusable presentation kit: `HeroShell` (full-bleed cinematic hero with backdrop, scrims, attribution chip, entrance motion), `SectionHeader`, `StatCard`, `FeatureCard` (now also powers `ModuleGrid`), `MediaPanel` (showcase image panel with hover zoom and mandatory attribution), and `SourceBadge` (verification shield — green for confirmed levels, neutral otherwise).

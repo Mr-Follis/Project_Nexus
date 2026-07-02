@@ -30,7 +30,7 @@ export function PlaceholderPanel({
               aria-hidden="true"
             />
           </div>
-          <h1 className="mt-6 text-balance text-4xl font-semibold text-text-primary sm:text-6xl">
+          <h1 className="mt-6 text-balance font-display text-4xl font-bold tracking-tight text-text-primary sm:text-6xl">
             {title}
           </h1>
           <p className="mt-5 text-pretty text-base leading-7 text-text-secondary sm:text-lg">

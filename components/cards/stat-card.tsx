@@ -26,7 +26,7 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <div className={cn("border-l-2 pl-4", TONE_BORDER[tone], className)}>
-      <p className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
+      <p className="font-display text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
         {value}
       </p>
       <p className="mt-1 text-xs font-medium uppercase tracking-wider text-text-muted sm:text-sm sm:normal-case sm:tracking-normal sm:text-text-secondary">

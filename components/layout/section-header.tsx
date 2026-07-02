@@ -32,7 +32,7 @@ export function SectionHeader({
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="mt-2 text-balance text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
+        <h2 className="mt-2 text-balance font-display text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
           {title}
         </h2>
         {description ? (

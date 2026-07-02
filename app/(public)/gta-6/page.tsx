@@ -109,7 +109,7 @@ export default async function GtaSixHubPage() {
       <HeroShell media={heroMedia}>
         <div className="max-w-3xl">
           <Badge tone="accent">Unofficial companion hub</Badge>
-          <h1 className="mt-6 text-balance text-5xl font-bold tracking-tight text-text-primary sm:text-7xl">
+          <h1 className="mt-6 text-balance font-display text-5xl font-bold tracking-tight text-text-primary sm:text-7xl">
             GTA VI
           </h1>
           <p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-text-secondary sm:text-lg sm:leading-8">

@@ -9,6 +9,7 @@ import {
 
 import { FeatureCard } from "@/components/cards/feature-card";
 import { StatCard } from "@/components/cards/stat-card";
+import { CTASection } from "@/components/layout/cta-section";
 import { HeroShell } from "@/components/layout/hero-shell";
 import { SectionHeader } from "@/components/layout/section-header";
 import {
@@ -56,7 +57,7 @@ export default async function HomePage() {
       <HeroShell media={heroMedia} size="tall">
         <div className="max-w-3xl">
           <Badge tone="accent">Unofficial GTA VI companion</Badge>
-          <h1 className="mt-6 text-balance text-5xl font-bold tracking-tight text-text-primary sm:text-7xl lg:text-8xl">
+          <h1 className="mt-6 text-balance font-display text-5xl font-bold tracking-tight text-text-primary sm:text-7xl lg:text-8xl">
             Project Nexus
           </h1>
           <p className="mt-6 max-w-2xl text-pretty text-base leading-7 text-text-secondary sm:text-lg sm:leading-8">
@@ -158,6 +159,25 @@ export default async function HomePage() {
           </Button>
         </div>
       </Card>
+
+      <CTASection
+        eyebrow="Built with the community"
+        title="Spotted something official?"
+        description="Trailer frames, Newswire posts, screenshots — send in the evidence and a moderator reviews it before anything changes on a public page. Or ask Nexus and get answers grounded in the verified database."
+        actions={
+          <>
+            <Button asChild>
+              <Link href="/gta-6/submit">
+                Submit evidence
+                <ArrowRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href="/gta-6/ask">Ask Nexus</Link>
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 }
