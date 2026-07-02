@@ -37,6 +37,23 @@ import {
   entityStatusUpdateSchema,
   type EntityStatusUpdateInput
 } from "@/lib/validation/entity-admin";
+import {
+  buildRecordCreateAuditEvent,
+  buildRecordEditAuditEvent,
+  diffRecordFields,
+  entityCreateSchema,
+  entityEditSchema,
+  gameCreateSchema,
+  gameEditSchema,
+  sourceCreateSchema,
+  sourceEditSchema,
+  type EntityCreateInput,
+  type EntityEditInput,
+  type GameCreateInput,
+  type GameEditInput,
+  type SourceCreateInput,
+  type SourceEditInput
+} from "@/lib/validation/record-admin";
 
 type RecordStatus = (typeof recordStatus.enumValues)[number];
 type EntityType = (typeof entityType.enumValues)[number];
@@ -118,6 +135,93 @@ export async function updateGameStatus(
       }),
       tableName: "games"
     });
+
+    return game;
+  });
+}
+
+export async function createAdminGame(
+  input: GameCreateInput,
+  options: { reviewerId: string }
+) {
+  const data = gameCreateSchema.parse(input);
+  const db = getDb();
+
+  return db.transaction(async (tx) => {
+    const [game] = await tx.insert(games).values(data).returning();
+
+    await tx.insert(recordVersions).values(
+      buildRecordCreateAuditEvent({
+        tableName: "games",
+        recordId: game.id,
+        data,
+        reviewerId: options.reviewerId
+      })
+    );
+
+    return game;
+  });
+}
+
+export async function updateAdminGame(
+  id: string,
+  input: GameEditInput,
+  options: { reviewerId: string }
+) {
+  const data = gameEditSchema.parse(input);
+  const current = await getGameById(id);
+
+  if (!current) {
+    return null;
+  }
+
+  const diff = diffRecordFields(current, data);
+
+  if (diff.changedFields.length === 0) {
+    return current;
+  }
+
+  const db = getDb();
+
+  return db.transaction(async (tx) => {
+    const setValues: Partial<typeof games.$inferInsert> = {
+      updatedAt: new Date()
+    };
+
+    if (data.title !== undefined) {
+      setValues.title = data.title;
+    }
+
+    if (data.slug !== undefined) {
+      setValues.slug = data.slug;
+    }
+
+    if (data.description !== undefined) {
+      setValues.description = data.description;
+    }
+
+    if (data.releaseDate !== undefined) {
+      setValues.releaseDate = data.releaseDate;
+    }
+
+    if (data.platforms !== undefined) {
+      setValues.platforms = data.platforms;
+    }
+
+    const [game] = await tx
+      .update(games)
+      .set(setValues)
+      .where(eq(games.id, id))
+      .returning();
+
+    await tx.insert(recordVersions).values(
+      buildRecordEditAuditEvent({
+        tableName: "games",
+        recordId: id,
+        ...diff,
+        reviewerId: options.reviewerId
+      })
+    );
 
     return game;
   });
@@ -521,6 +625,238 @@ export async function createEntity(input: EntityInput) {
     .returning();
 
   return entity;
+}
+
+export async function createAdminEntity(
+  input: EntityCreateInput,
+  options: { reviewerId: string }
+) {
+  const data = entityCreateSchema.parse(input);
+  const db = getDb();
+
+  return db.transaction(async (tx) => {
+    const [entity] = await tx.insert(entities).values(data).returning();
+
+    await tx.insert(recordVersions).values(
+      buildRecordCreateAuditEvent({
+        tableName: "entities",
+        recordId: entity.id,
+        data,
+        reviewerId: options.reviewerId
+      })
+    );
+
+    return entity;
+  });
+}
+
+export async function updateAdminEntity(
+  id: string,
+  input: EntityEditInput,
+  options: { reviewerId: string }
+) {
+  const data = entityEditSchema.parse(input);
+  const current = await getEntityById(id);
+
+  if (!current) {
+    return null;
+  }
+
+  const diff = diffRecordFields(current, data);
+
+  if (diff.changedFields.length === 0) {
+    return current;
+  }
+
+  const db = getDb();
+
+  return db.transaction(async (tx) => {
+    const setValues: Partial<typeof entities.$inferInsert> = {
+      updatedAt: new Date()
+    };
+
+    if (data.type !== undefined) {
+      setValues.type = data.type;
+    }
+
+    if (data.name !== undefined) {
+      setValues.name = data.name;
+    }
+
+    if (data.slug !== undefined) {
+      setValues.slug = data.slug;
+    }
+
+    if (data.summary !== undefined) {
+      setValues.summary = data.summary;
+    }
+
+    if (data.description !== undefined) {
+      setValues.description = data.description;
+    }
+
+    if (data.verification !== undefined) {
+      setValues.verification = data.verification;
+    }
+
+    if (data.confidenceScore !== undefined) {
+      setValues.confidenceScore = data.confidenceScore;
+    }
+
+    const [entity] = await tx
+      .update(entities)
+      .set(setValues)
+      .where(eq(entities.id, id))
+      .returning();
+
+    await tx.insert(recordVersions).values(
+      buildRecordEditAuditEvent({
+        tableName: "entities",
+        recordId: id,
+        ...diff,
+        reviewerId: options.reviewerId
+      })
+    );
+
+    return entity;
+  });
+}
+
+export async function listAdminSources(options: { limit?: number } = {}) {
+  const db = getDb();
+
+  return db
+    .select({
+      source: sources,
+      game: {
+        id: games.id,
+        title: games.title,
+        slug: games.slug
+      }
+    })
+    .from(sources)
+    .leftJoin(games, eq(sources.gameId, games.id))
+    .orderBy(desc(sources.createdAt))
+    .limit(options.limit ?? 25);
+}
+
+export async function getSourceById(id: string) {
+  const db = getDb();
+  const [source] = await db
+    .select()
+    .from(sources)
+    .where(eq(sources.id, id))
+    .limit(1);
+
+  return source ?? null;
+}
+
+export async function createAdminSource(
+  input: SourceCreateInput,
+  options: { reviewerId: string }
+) {
+  const data = sourceCreateSchema.parse(input);
+  const db = getDb();
+
+  return db.transaction(async (tx) => {
+    const [source] = await tx
+      .insert(sources)
+      .values({
+        ...data,
+        publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
+        accessedAt: data.accessedAt ? new Date(data.accessedAt) : undefined
+      })
+      .returning();
+
+    await tx.insert(recordVersions).values(
+      buildRecordCreateAuditEvent({
+        tableName: "sources",
+        recordId: source.id,
+        data,
+        reviewerId: options.reviewerId
+      })
+    );
+
+    return source;
+  });
+}
+
+export async function updateAdminSource(
+  id: string,
+  input: SourceEditInput,
+  options: { reviewerId: string }
+) {
+  const data = sourceEditSchema.parse(input);
+  const current = await getSourceById(id);
+
+  if (!current) {
+    return null;
+  }
+
+  const diff = diffRecordFields(current, data);
+
+  if (diff.changedFields.length === 0) {
+    return current;
+  }
+
+  const db = getDb();
+
+  return db.transaction(async (tx) => {
+    const setValues: Partial<typeof sources.$inferInsert> = {};
+
+    if (data.type !== undefined) {
+      setValues.type = data.type;
+    }
+
+    if (data.title !== undefined) {
+      setValues.title = data.title;
+    }
+
+    if (data.url !== undefined) {
+      setValues.url = data.url;
+    }
+
+    if (data.author !== undefined) {
+      setValues.author = data.author;
+    }
+
+    if (data.publishedAt !== undefined) {
+      setValues.publishedAt = new Date(data.publishedAt);
+    }
+
+    if (data.accessedAt !== undefined) {
+      setValues.accessedAt = new Date(data.accessedAt);
+    }
+
+    if (data.reliabilityScore !== undefined) {
+      setValues.reliabilityScore = data.reliabilityScore;
+    }
+
+    if (data.permissionNotes !== undefined) {
+      setValues.permissionNotes = data.permissionNotes;
+    }
+
+    if (data.notes !== undefined) {
+      setValues.notes = data.notes;
+    }
+
+    const [source] = await tx
+      .update(sources)
+      .set(setValues)
+      .where(eq(sources.id, id))
+      .returning();
+
+    await tx.insert(recordVersions).values(
+      buildRecordEditAuditEvent({
+        tableName: "sources",
+        recordId: id,
+        ...diff,
+        reviewerId: options.reviewerId
+      })
+    );
+
+    return source;
+  });
 }
 
 export async function createSource(input: SourceInput) {

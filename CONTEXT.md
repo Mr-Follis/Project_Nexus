@@ -67,6 +67,16 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-02 admin create/edit forms checkpoint:
+
+- Added audited admin create and field-edit workflows for games, entities, and sources: `POST /api/admin/{games,entities,sources}` and `PUT /api/admin/{games,entities,sources}/[id]`, with a shared `runAdminMutation` guard (auth, DB check, Zod 400s, unique-violation 409s).
+- Create schemas are strict and omit `status`, so every admin-created record starts as a draft and can only be published through the existing audited status actions; edit schemas require at least one field and never inject defaults.
+- Every create/edit writes a `record_versions` audit row with reviewer id and changed fields; no-op edits (values unchanged) skip both the update and the audit row via a field-diff helper.
+- Added a reusable `RecordForm` admin client component (toggleable create/edit forms, typed field configs) wired into the admin page for games, entities, and a new Sources section; known limitation: empty inputs are omitted, so optional fields cannot be cleared yet.
+- Verified end-to-end on the running dev server: created and edited a game, entity, and source via the API, confirmed 401/400/404/409 guards, verified six audit rows with reviewer identity, confirmed the draft game did not appear in the public games API, then removed the verification records.
+- Note: running `npm run build` while `next dev` is serving corrupts the dev server's `.next` cache (`Cannot find module './vendor-chunks/drizzle-orm.js'`); fix is to clear `.next` and restart the dev server.
+- 110 unit tests, typecheck, lint, format, and production build pass.
+
 2026-07-01 game-publish checkpoint:
 
 - Added a game publish workflow: `getGameById`, audited `updateGameStatus`, `PATCH /api/admin/games/[gameId]`, and an admin Games section using the shared `StatusActions` control.

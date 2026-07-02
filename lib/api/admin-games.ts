@@ -1,10 +1,67 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
+import { runAdminMutation } from "@/lib/api/admin-mutation";
 import { authorizeAdminRequest } from "@/lib/auth/admin";
 import { getDatabaseUrl } from "@/lib/db/client";
-import { updateGameStatus } from "@/lib/db/repositories/knowledge";
+import {
+  createAdminGame,
+  updateAdminGame,
+  updateGameStatus
+} from "@/lib/db/repositories/knowledge";
 import { recordStatusSchema } from "@/lib/validation/knowledge";
+import {
+  gameCreateSchema,
+  gameEditSchema
+} from "@/lib/validation/record-admin";
+
+function toGameResponse(game: {
+  id: string;
+  title: string;
+  slug: string;
+  status: string;
+}) {
+  return {
+    id: game.id,
+    title: game.title,
+    slug: game.slug,
+    status: game.status
+  };
+}
+
+export async function createAdminGameResponse(request: Request) {
+  return runAdminMutation(request, "Invalid game input.", async (auth) => {
+    const input = gameCreateSchema.parse(await request.json());
+    const game = await createAdminGame(input, { reviewerId: auth.reviewerId });
+
+    return NextResponse.json(
+      { ok: true, configured: true, game: toGameResponse(game) },
+      { status: 201 }
+    );
+  });
+}
+
+export async function editAdminGameResponse(request: Request, gameId: string) {
+  return runAdminMutation(request, "Invalid game update.", async (auth) => {
+    const input = gameEditSchema.parse(await request.json());
+    const game = await updateAdminGame(gameId, input, {
+      reviewerId: auth.reviewerId
+    });
+
+    if (!game) {
+      return NextResponse.json(
+        { ok: false, configured: true, error: "Game not found." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      configured: true,
+      game: toGameResponse(game)
+    });
+  });
+}
 
 export async function updateAdminGameStatusResponse(
   request: Request,

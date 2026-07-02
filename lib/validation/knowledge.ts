@@ -46,7 +46,7 @@ export const entityTypeSchema = z.enum([
   "other"
 ]);
 
-const slugSchema = z
+export const slugSchema = z
   .string()
   .min(1)
   .max(120)

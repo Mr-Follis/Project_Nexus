@@ -1,10 +1,72 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
+import { runAdminMutation } from "@/lib/api/admin-mutation";
 import { authorizeAdminRequest } from "@/lib/auth/admin";
 import { getDatabaseUrl } from "@/lib/db/client";
-import { updateEntityStatus } from "@/lib/db/repositories/knowledge";
+import {
+  createAdminEntity,
+  updateAdminEntity,
+  updateEntityStatus
+} from "@/lib/db/repositories/knowledge";
 import { entityStatusUpdateSchema } from "@/lib/validation/entity-admin";
+import {
+  entityCreateSchema,
+  entityEditSchema
+} from "@/lib/validation/record-admin";
+
+function toEntityResponse(entity: {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+}) {
+  return {
+    id: entity.id,
+    name: entity.name,
+    slug: entity.slug,
+    status: entity.status
+  };
+}
+
+export async function createAdminEntityResponse(request: Request) {
+  return runAdminMutation(request, "Invalid entity input.", async (auth) => {
+    const input = entityCreateSchema.parse(await request.json());
+    const entity = await createAdminEntity(input, {
+      reviewerId: auth.reviewerId
+    });
+
+    return NextResponse.json(
+      { ok: true, configured: true, entity: toEntityResponse(entity) },
+      { status: 201 }
+    );
+  });
+}
+
+export async function editAdminEntityResponse(
+  request: Request,
+  entityId: string
+) {
+  return runAdminMutation(request, "Invalid entity update.", async (auth) => {
+    const input = entityEditSchema.parse(await request.json());
+    const entity = await updateAdminEntity(entityId, input, {
+      reviewerId: auth.reviewerId
+    });
+
+    if (!entity) {
+      return NextResponse.json(
+        { ok: false, configured: true, error: "Entity not found." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      configured: true,
+      entity: toEntityResponse(entity)
+    });
+  });
+}
 
 export async function updateAdminEntityStatusResponse(
   request: Request,
