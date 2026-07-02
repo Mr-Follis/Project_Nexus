@@ -34,7 +34,11 @@ import {
   getAllowedModerationStatuses,
   type ModerationStatus
 } from "@/lib/validation/moderation";
-import { resolveMediaAttribution } from "@/lib/validation/media";
+import {
+  mediaProvenanceSchema,
+  mediaTypeSchema,
+  resolveMediaAttribution
+} from "@/lib/validation/media";
 import { formatDate } from "@/lib/utils/date";
 
 export const dynamic = "force-dynamic";
@@ -427,6 +431,16 @@ export default async function AdminPage() {
           full attribution and can be published, hidden, or replaced later by
           original Project Nexus content.
         </p>
+        {state.games.length > 0 ? (
+          <RecordForm
+            endpoint="/api/admin/media"
+            method="POST"
+            fields={buildMediaFields(state.games, state.entities)}
+            toggleLabel="New media asset"
+            submitLabel="Create media asset"
+            successMessage="Media asset created as a draft."
+          />
+        ) : null}
         {state.media.length > 0 ? (
           state.media.map(({ media, game }) => (
             <Card key={media.id}>
@@ -691,6 +705,109 @@ function buildEntityFields(
   );
 
   return fields;
+}
+
+function buildMediaFields(
+  games: AdminGame[],
+  entities: AdminEntity[]
+): RecordFieldConfig[] {
+  return [
+    {
+      name: "gameId",
+      label: "Game",
+      kind: "select",
+      required: true,
+      options: games.map((game) => ({ value: game.id, label: game.title }))
+    },
+    {
+      name: "entityId",
+      label: "Related entity (optional)",
+      kind: "select",
+      options: entities.map(({ entity }) => ({
+        value: entity.id,
+        label: entity.name
+      }))
+    },
+    {
+      name: "type",
+      label: "Type",
+      kind: "select",
+      required: true,
+      options: enumOptions(mediaTypeSchema.options)
+    },
+    {
+      name: "provenance",
+      label: "Provenance",
+      kind: "select",
+      required: true,
+      options: enumOptions(mediaProvenanceSchema.options),
+      defaultValue: "placeholder",
+      help: "Official promotional media requires a copyright owner plus a source name or original URL."
+    },
+    {
+      name: "title",
+      label: "Title",
+      kind: "text",
+      required: true
+    },
+    {
+      name: "filePath",
+      label: "File path",
+      kind: "text",
+      placeholder: "/images/…",
+      help: "Local path under /public, or leave empty and set an external URL."
+    },
+    {
+      name: "externalUrl",
+      label: "External URL",
+      kind: "text",
+      placeholder: "https://…"
+    },
+    {
+      name: "altText",
+      label: "Alt text",
+      kind: "text"
+    },
+    {
+      name: "caption",
+      label: "Caption",
+      kind: "textarea"
+    },
+    {
+      name: "sourceName",
+      label: "Source name",
+      kind: "text",
+      placeholder: "Rockstar Games"
+    },
+    {
+      name: "copyrightOwner",
+      label: "Copyright owner",
+      kind: "text",
+      placeholder: "Rockstar Games / Take-Two Interactive"
+    },
+    {
+      name: "originalUrl",
+      label: "Original URL",
+      kind: "text",
+      placeholder: "https://…"
+    },
+    {
+      name: "attributionText",
+      label: "Attribution text (optional override)",
+      kind: "text"
+    },
+    {
+      name: "attributionRequired",
+      label: "Attribution required",
+      kind: "checkbox",
+      defaultValue: "true"
+    },
+    {
+      name: "isFeatured",
+      label: "Featured (hero candidate)",
+      kind: "checkbox"
+    }
+  ];
 }
 
 function buildEntitySourceFields(sources: AdminSource[]): RecordFieldConfig[] {

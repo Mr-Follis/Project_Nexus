@@ -3,10 +3,13 @@ import { and, desc, eq } from "drizzle-orm";
 import { games, mediaAssets, recordVersions } from "@/db/schema";
 import { getDb } from "@/lib/db/client";
 import {
+  mediaAssetCreateSchema,
   mediaAssetInputSchema,
+  type MediaAssetCreateInput,
   type MediaAssetInput
 } from "@/lib/validation/media";
 import { buildEntityStatusAuditEvent } from "@/lib/validation/entity-admin";
+import { buildRecordCreateAuditEvent } from "@/lib/validation/record-admin";
 
 export async function createMediaAsset(input: MediaAssetInput) {
   const db = getDb();
@@ -15,6 +18,29 @@ export async function createMediaAsset(input: MediaAssetInput) {
   const [asset] = await db.insert(mediaAssets).values(data).returning();
 
   return asset;
+}
+
+export async function createAdminMedia(
+  input: MediaAssetCreateInput,
+  options: { reviewerId: string }
+) {
+  const data = mediaAssetCreateSchema.parse(input);
+  const db = getDb();
+
+  return db.transaction(async (tx) => {
+    const [asset] = await tx.insert(mediaAssets).values(data).returning();
+
+    await tx.insert(recordVersions).values(
+      buildRecordCreateAuditEvent({
+        tableName: "media_assets",
+        recordId: asset.id,
+        data,
+        reviewerId: options.reviewerId
+      })
+    );
+
+    return asset;
+  });
 }
 
 /**

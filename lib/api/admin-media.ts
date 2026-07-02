@@ -1,10 +1,39 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
+import { runAdminMutation } from "@/lib/api/admin-mutation";
 import { authorizeAdminRequest } from "@/lib/auth/admin";
 import { getDatabaseUrl } from "@/lib/db/client";
-import { updateMediaStatus } from "@/lib/db/repositories/media";
+import {
+  createAdminMedia,
+  updateMediaStatus
+} from "@/lib/db/repositories/media";
 import { recordStatusSchema } from "@/lib/validation/knowledge";
+import { mediaAssetCreateSchema } from "@/lib/validation/media";
+
+export async function createAdminMediaResponse(request: Request) {
+  return runAdminMutation(request, "Invalid media input.", async (auth) => {
+    const input = mediaAssetCreateSchema.parse(await request.json());
+    const asset = await createAdminMedia(input, {
+      reviewerId: auth.reviewerId
+    });
+
+    return NextResponse.json(
+      {
+        ok: true,
+        configured: true,
+        media: {
+          id: asset.id,
+          title: asset.title,
+          type: asset.type,
+          provenance: asset.provenance,
+          status: asset.status
+        }
+      },
+      { status: 201 }
+    );
+  });
+}
 
 export async function updateAdminMediaStatusResponse(
   request: Request,

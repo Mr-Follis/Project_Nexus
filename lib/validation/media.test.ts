@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { mediaAssetInputSchema, resolveMediaAttribution } from "./media";
+import {
+  mediaAssetCreateSchema,
+  mediaAssetInputSchema,
+  resolveMediaAttribution
+} from "./media";
 
 const gameId = "00000000-0000-4000-8000-000000000001";
 
@@ -50,6 +54,67 @@ describe("media asset validation", () => {
     expect(parsed.provenance).toBe("placeholder");
     expect(parsed.status).toBe("draft");
     expect(parsed.attributionRequired).toBe(true);
+  });
+});
+
+describe("media asset create validation", () => {
+  it("rejects a status field so creates always start as drafts", () => {
+    const result = mediaAssetCreateSchema.safeParse({
+      gameId,
+      type: "artwork",
+      title: "Placeholder",
+      filePath: "/images/placeholder.png",
+      status: "published"
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("keeps the file/url and official-attribution rules", () => {
+    expect(
+      mediaAssetCreateSchema.safeParse({
+        gameId,
+        type: "artwork",
+        title: "No file"
+      }).success
+    ).toBe(false);
+
+    expect(
+      mediaAssetCreateSchema.safeParse({
+        gameId,
+        type: "promotional_image",
+        title: "Official still",
+        provenance: "official_promotional",
+        filePath: "/media/official.jpg"
+      }).success
+    ).toBe(false);
+
+    expect(
+      mediaAssetCreateSchema.safeParse({
+        gameId,
+        type: "promotional_image",
+        title: "Official still",
+        provenance: "official_promotional",
+        filePath: "/media/official.jpg",
+        copyrightOwner: "Rockstar Games / Take-Two Interactive",
+        sourceName: "Rockstar Games"
+      }).success
+    ).toBe(true);
+  });
+
+  it("accepts explicit false for defaulted booleans", () => {
+    const parsed = mediaAssetCreateSchema.parse({
+      gameId,
+      type: "artwork",
+      title: "Original art",
+      provenance: "project_nexus_original",
+      filePath: "/images/original.png",
+      attributionRequired: false,
+      isFeatured: false
+    });
+
+    expect(parsed.attributionRequired).toBe(false);
+    expect(parsed.isFeatured).toBe(false);
   });
 });
 

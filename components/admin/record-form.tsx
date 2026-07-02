@@ -9,7 +9,14 @@ export type RecordFieldConfig = {
   name: string;
   label: string;
   kind:
-    "text" | "textarea" | "select" | "number" | "date" | "datetime" | "tags";
+    | "text"
+    | "textarea"
+    | "select"
+    | "number"
+    | "date"
+    | "datetime"
+    | "tags"
+    | "checkbox";
   required?: boolean;
   options?: Array<{ value: string; label: string }>;
   placeholder?: string;
@@ -173,6 +180,17 @@ function renderField(
     );
   }
 
+  if (field.kind === "checkbox") {
+    return (
+      <input
+        type="checkbox"
+        checked={value === "true"}
+        onChange={(event) => onChange(event.target.checked ? "true" : "")}
+        className="h-5 w-5 accent-accent-primary"
+      />
+    );
+  }
+
   if (field.kind === "select") {
     return (
       <select
@@ -237,6 +255,13 @@ function buildPayload(
 
   for (const field of fields) {
     const raw = (values[field.name] ?? "").trim();
+
+    // Checkboxes always submit an explicit boolean so unchecking a field
+    // whose schema default is true still turns it off.
+    if (field.kind === "checkbox") {
+      payload[field.name] = raw === "true";
+      continue;
+    }
 
     if (!raw) {
       continue;
