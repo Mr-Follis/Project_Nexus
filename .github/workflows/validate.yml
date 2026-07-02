@@ -21,6 +21,12 @@ jobs:
           node-version: 20
           cache: npm
 
+      # The npm bundled with the Node 20 runner image intermittently crashes
+      # mid-install ("Exit handler never called!") yet exits 0, leaving a
+      # partial node_modules. Pin a fixed npm before installing.
+      - name: Update npm
+        run: npm install -g npm@11
+
       - name: Install dependencies
         run: npm ci
 
