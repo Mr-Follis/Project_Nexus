@@ -16,6 +16,7 @@ import { ModuleGrid } from "@/components/cards/module-grid";
 import { StatCard } from "@/components/cards/stat-card";
 import { HeroShell } from "@/components/layout/hero-shell";
 import { SectionHeader } from "@/components/layout/section-header";
+import { Reveal } from "@/components/motion/reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -105,11 +106,11 @@ export default async function GtaSixHubPage() {
   ]);
 
   return (
-    <div className="space-y-16 pb-4 sm:space-y-20">
+    <div className="space-y-20 pb-4 sm:space-y-24">
       <HeroShell media={heroMedia}>
         <div className="max-w-3xl">
           <Badge tone="accent">Unofficial companion hub</Badge>
-          <h1 className="mt-6 text-balance font-display text-5xl font-bold tracking-tight text-text-primary sm:text-7xl">
+          <h1 className="text-display-gradient mt-6 text-balance font-display text-5xl font-bold leading-[0.95] tracking-tight sm:text-7xl">
             GTA VI
           </h1>
           <p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-text-secondary sm:text-lg sm:leading-8">
@@ -157,32 +158,39 @@ export default async function GtaSixHubPage() {
       </HeroShell>
 
       <section className="space-y-8">
-        <SectionHeader
-          eyebrow="The database"
-          title="Explore everything on record"
-          description="Every module below reads from the same verified knowledge layer. If a section looks light, it is because Rockstar has not confirmed more — not because we stopped looking."
-        />
-        <ModuleGrid modules={modules} />
+        <Reveal>
+          <SectionHeader
+            eyebrow="The database"
+            title="Explore everything on record"
+            description="Every module below reads from the same verified knowledge layer. If a section looks light, it is because Rockstar has not confirmed more — not because we stopped looking."
+          />
+        </Reveal>
+        <Reveal delay={0.08}>
+          <ModuleGrid modules={modules} />
+        </Reveal>
       </section>
 
-      <Card>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight text-text-primary">
-              How records earn their place
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-text-secondary">
-              Published records are limited to officially confirmed information
-              from Rockstar Games sources. Every record carries source links,
-              verification status, and last-updated metadata; community
-              submissions go through moderation before anything changes here.
-            </p>
+      <Reveal>
+        <Card>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight text-text-primary">
+                How records earn their place
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-text-secondary">
+                Published records are limited to officially confirmed
+                information from Rockstar Games sources. Every record carries
+                source links, verification status, and last-updated metadata;
+                community submissions go through moderation before anything
+                changes here.
+              </p>
+            </div>
+            <Badge tone="success" className="shrink-0">
+              Officially sourced
+            </Badge>
           </div>
-          <Badge tone="success" className="shrink-0">
-            Officially sourced
-          </Badge>
-        </div>
-      </Card>
+        </Card>
+      </Reveal>
     </div>
   );
 }

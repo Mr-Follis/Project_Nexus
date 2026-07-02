@@ -67,6 +67,17 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-02 Design Research Sprint checkpoint:
+
+- Researched motionsites.ai plus Apple, Linear, Framer, Arc, Raycast, Stripe, and Vercel; distilled findings into `docs/design/DesignResearch.md` (key observations, what to borrow vs. never copy, translation table into the Nexus design language, and a sprint roadmap).
+- Motion round 1 per the research: `Reveal` is now a once-only viewport-entry fade-up (0.5s enter curve, 20px rise) with a `delay` prop for 80ms sibling stagger and a `mount` trigger for above-the-fold surfaces (heroes, PageHeader). Landing/hub sections and card grids reveal on entry; reference pages render instantly.
+- Hero backdrops gained the page's single ambient animation — a one-shot 16s sub-perceptual settle from scale 1.06 (opt-in under `prefers-reduced-motion: no-preference`) — plus a static SVG film-grain overlay at 5% opacity.
+- New scroll-aware `SiteHeader` client component (extracted from AppShell): near-transparent over the hero, deepens to full glass + hairline + accent underline after 24px of scroll, rAF-guarded passive listener.
+- Display typography: `.text-display-gradient` (white→dimmed vertical fill with solid-color fallback) on all H1 surfaces, tightened display leading (0.95 heroes / 1.02 page headers).
+- Primary buttons are lit from above: vertical accent gradient, inner top highlight, glow that deepens on hover.
+- Landing/hub section rhythm raised to 80/96px (`space-y-20 sm:space-y-24`).
+- Validation: 130 tests, typecheck, lint, format, and production build pass; all 13 routes return 200; new utilities confirmed in served HTML and compiled CSS; disclaimer still renders once per page.
+
 2026-07-02 Design Mode Sprint 1 (Premium Visual System) checkpoint:
 
 - Added Space Grotesk as the display typeface (`--font-display` / `font-display` Tailwind family, Inter fallback) and applied it to every heading surface: hero H1s, PageHeader, SectionHeader, PlaceholderPanel, StatCard values, and the header/footer wordmarks.

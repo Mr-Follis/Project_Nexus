@@ -12,6 +12,7 @@ import { StatCard } from "@/components/cards/stat-card";
 import { CTASection } from "@/components/layout/cta-section";
 import { HeroShell } from "@/components/layout/hero-shell";
 import { SectionHeader } from "@/components/layout/section-header";
+import { Reveal } from "@/components/motion/reveal";
 import {
   MediaPanel,
   type MediaPanelAsset
@@ -53,11 +54,11 @@ export default async function HomePage() {
   ]);
 
   return (
-    <div className="space-y-16 pb-4 sm:space-y-20">
+    <div className="space-y-20 pb-4 sm:space-y-24">
       <HeroShell media={heroMedia} size="tall">
         <div className="max-w-3xl">
           <Badge tone="accent">Unofficial GTA VI companion</Badge>
-          <h1 className="mt-6 text-balance font-display text-5xl font-bold tracking-tight text-text-primary sm:text-7xl lg:text-8xl">
+          <h1 className="text-display-gradient mt-6 text-balance font-display text-5xl font-bold leading-[0.95] tracking-tight sm:text-7xl lg:text-8xl">
             Project Nexus
           </h1>
           <p className="mt-6 max-w-2xl text-pretty text-base leading-7 text-text-secondary sm:text-lg sm:leading-8">
@@ -101,83 +102,95 @@ export default async function HomePage() {
       </HeroShell>
 
       <section className="space-y-8">
-        <SectionHeader
-          eyebrow="Why Nexus"
-          title="One knowledge layer. Every surface."
-          description="Data is entered once, verified, and reused across pages, galleries, search, maps, and future AI answers — never copied around, never invented."
-        />
+        <Reveal>
+          <SectionHeader
+            eyebrow="Why Nexus"
+            title="One knowledge layer. Every surface."
+            description="Data is entered once, verified, and reused across pages, galleries, search, maps, and future AI answers — never copied around, never invented."
+          />
+        </Reveal>
         <div className="grid gap-4 md:grid-cols-3">
-          {featureCards.map((feature) => (
-            <FeatureCard
-              key={feature.title}
-              icon={feature.icon}
-              title={feature.title}
-              body={feature.body}
-            />
+          {featureCards.map((feature, index) => (
+            <Reveal key={feature.title} delay={index * 0.08} className="h-full">
+              <FeatureCard
+                icon={feature.icon}
+                title={feature.title}
+                body={feature.body}
+                className="h-full"
+              />
+            </Reveal>
           ))}
         </div>
       </section>
 
       {showcase.length > 0 ? (
         <section className="space-y-8">
-          <SectionHeader
-            eyebrow="From the official archive"
-            title="Leonida, on the record"
-            description="Official promotional media, stored in a structured library with full attribution — and replaceable with original Project Nexus captures after launch."
-            actions={
-              <Button asChild variant="secondary">
-                <Link href="/gta-6/regions">Explore the places</Link>
-              </Button>
-            }
-          />
+          <Reveal>
+            <SectionHeader
+              eyebrow="From the official archive"
+              title="Leonida, on the record"
+              description="Official promotional media, stored in a structured library with full attribution — and replaceable with original Project Nexus captures after launch."
+              actions={
+                <Button asChild variant="secondary">
+                  <Link href="/gta-6/regions">Explore the places</Link>
+                </Button>
+              }
+            />
+          </Reveal>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {showcase.map((asset) => (
-              <MediaPanel key={asset.id} asset={asset} />
+            {showcase.map((asset, index) => (
+              <Reveal key={asset.id} delay={index * 0.08}>
+                <MediaPanel asset={asset} />
+              </Reveal>
             ))}
           </div>
         </section>
       ) : null}
 
-      <Card className="border-accent-primary/30 bg-gradient-to-br from-bg-surface to-bg-elevated">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-accent-secondary">
-              <Database className="h-4 w-4" aria-hidden="true" />
-              Data-first rule
+      <Reveal>
+        <Card className="border-accent-primary/30 bg-gradient-to-br from-bg-surface to-bg-elevated">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-accent-secondary">
+                <Database className="h-4 w-4" aria-hidden="true" />
+                Data-first rule
+              </div>
+              <p className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
+                Enter data once. Use it everywhere.
+              </p>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-text-secondary">
+                Public pages, galleries, search, and maps all read from the same
+                verified records — empty fields stay empty until sourced data is
+                reviewed, and nothing is ever generated to fill space.
+              </p>
             </div>
-            <p className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
-              Enter data once. Use it everywhere.
-            </p>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-text-secondary">
-              Public pages, galleries, search, and maps all read from the same
-              verified records — empty fields stay empty until sourced data is
-              reviewed, and nothing is ever generated to fill space.
-            </p>
+            <Button asChild variant="secondary" className="shrink-0">
+              <Link href="/gta-6/search">Search the database</Link>
+            </Button>
           </div>
-          <Button asChild variant="secondary" className="shrink-0">
-            <Link href="/gta-6/search">Search the database</Link>
-          </Button>
-        </div>
-      </Card>
+        </Card>
+      </Reveal>
 
-      <CTASection
-        eyebrow="Built with the community"
-        title="Spotted something official?"
-        description="Trailer frames, Newswire posts, screenshots — send in the evidence and a moderator reviews it before anything changes on a public page. Or ask Nexus and get answers grounded in the verified database."
-        actions={
-          <>
-            <Button asChild>
-              <Link href="/gta-6/submit">
-                Submit evidence
-                <ArrowRight aria-hidden="true" className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link href="/gta-6/ask">Ask Nexus</Link>
-            </Button>
-          </>
-        }
-      />
+      <Reveal>
+        <CTASection
+          eyebrow="Built with the community"
+          title="Spotted something official?"
+          description="Trailer frames, Newswire posts, screenshots — send in the evidence and a moderator reviews it before anything changes on a public page. Or ask Nexus and get answers grounded in the verified database."
+          actions={
+            <>
+              <Button asChild>
+                <Link href="/gta-6/submit">
+                  Submit evidence
+                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href="/gta-6/ask">Ask Nexus</Link>
+              </Button>
+            </>
+          }
+        />
+      </Reveal>
     </div>
   );
 }

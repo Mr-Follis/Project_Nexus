@@ -19,10 +19,14 @@ export function HeroBackdrop({ media }: { media: HeroMedia }) {
       <div
         role="img"
         aria-label={media.altText}
-        className="absolute inset-0 bg-cover bg-center"
+        className="hero-zoom absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url('${media.imageUrl}')` }}
       />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,15,0.96)_0%,rgba(8,10,15,0.82)_38%,rgba(8,10,15,0.22)_100%),linear-gradient(180deg,rgba(8,10,15,0.2)_0%,rgba(8,10,15,0.82)_100%)]" />
+      <div
+        className="grain-overlay absolute inset-0 opacity-[0.05]"
+        aria-hidden="true"
+      />
       {media.attribution || media.provenance ? (
         <div className="absolute bottom-3 right-3 z-10 max-w-[90%] rounded-full border border-white/10 bg-black/45 px-3 py-1 backdrop-blur">
           <MediaAttribution

@@ -35,6 +35,7 @@ export function HeroShell({
     >
       <HeroBackdrop media={media} />
       <Reveal
+        trigger="mount"
         className={cn(
           "relative mx-auto flex max-w-6xl flex-col justify-end px-4 pb-10 pt-24 sm:px-6 sm:pb-14",
           minHeight

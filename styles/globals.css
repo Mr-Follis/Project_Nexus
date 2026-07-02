@@ -61,6 +61,43 @@ a {
   display: none;
 }
 
+/* Display headlines: white fading to dimmed white, the hairline-school
+   equivalent of a spotlight. Falls back to solid color if unsupported. */
+.text-display-gradient {
+  background-image: linear-gradient(
+    180deg,
+    rgb(var(--color-text-primary)) 55%,
+    rgb(var(--color-text-primary) / 0.62)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: rgb(var(--color-text-primary));
+}
+
+/* Filmic texture over hero media; static SVG noise, no runtime cost. */
+.grain-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* The page's single ambient animation: a one-shot, sub-perceptual settle
+   of the hero backdrop. Opt-in so reduced-motion users never see it move. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-zoom {
+    animation: hero-zoom 16s var(--ease-enter) both;
+  }
+
+  @keyframes hero-zoom {
+    from {
+      transform: scale(1.06);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
