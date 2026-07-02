@@ -67,6 +67,17 @@ Current focus:
 
 ## Last Checkpoint
 
+2026-07-02 media launch checkpoint:
+
+- Downloaded Rockstar's officially provided GTA VI media packs from the first-party downloads page (`rockstargames.com/VI/media` → `media.rockstargames.com/VI/downloads/...`) — these zips are Rockstar's sanctioned distribution, not scraping. Selected 34 screenshots plus the official key art, resized to 1600px JPEGs (~6MB total) under `public/images/media/gta-6/`.
+- Published 35 new official-promotional media records via the audited admin API, each with copyright owner, source name, and original URL: 2 screenshots per character (8) and per region (6 pictured), key art (featured), and 2 screenshots each for the new vehicle/weapon records.
+- The official key art is now the featured hero: home and the GTA VI hub both render it cinematically with the attribution/provenance chip (the hub hero was rewired from a hardcoded image to `getGameHeroMedia`, marked force-dynamic).
+- Created 3 new officially confirmed entities from Rockstar's own asset names: vehicles `'55 Vapid Stanier` (Vintage Vice City Pack media) and `'95 Grotti Cheetah` (Ultimate Edition media), weapon `Hawk & Little Morgan Revolvers` (Ultimate Edition media) — each sourced to a new official media-downloads source record. The vehicles and weapons category pages now show real records.
+- Archived the seeded metadata-only official placeholder record (superseded by real assets).
+- Totals now: 18 published entities (8 characters, 7 regions, 2 vehicles, 1 weapon), 38 published media assets, 6 sources, 21 entity-source links, 143 audit rows.
+- Unused officially named assets available for future records: Squalo, Stock 305, Vapid Buggy, Electric Fang, Wyman Car Collection, Rideout Customs, Sara's Salon (types need confirmation before entity creation).
+- Verified live: heroes with attribution, per-entity galleries, populated vehicles/weapons pages, images serving 200. 130 tests, typecheck, lint, format pass.
+
 2026-07-02 content launch checkpoint:
 
 - Populated the knowledge base with officially confirmed GTA VI content, entered through the audited admin APIs (not seeds): 8 characters (Jason Duval, Lucia Caminos, Cal Hampton, Boobie Ike, Dre'Quan Priest, Real Dimez, Raul Bautista, Brian Heder) and 7 regions (Leonida, Vice City, Leonida Keys, Grassrivers, Port Gellhorn, Ambrosia, Mount Kalaga National Park), all `confirmed_official` with summaries written in our own words.

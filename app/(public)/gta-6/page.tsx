@@ -12,9 +12,13 @@ import {
 } from "lucide-react";
 
 import { ModuleGrid } from "@/components/cards/module-grid";
+import { HeroBackdrop } from "@/components/media/hero-backdrop";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getGameHeroMedia } from "@/lib/media/hero";
+
+export const dynamic = "force-dynamic";
 
 const modules = [
   {
@@ -82,12 +86,13 @@ const modules = [
   }
 ];
 
-export default function GtaSixHubPage() {
+export default async function GtaSixHubPage() {
+  const heroMedia = await getGameHeroMedia("gta-6");
+
   return (
     <div className="space-y-10 pb-12">
       <section className="relative left-1/2 min-h-[620px] w-screen -translate-x-1/2 overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[url('/images/nexus-city-intel-hero.png')] bg-cover bg-center" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,15,0.96)_0%,rgba(8,10,15,0.78)_42%,rgba(8,10,15,0.32)_100%),linear-gradient(180deg,rgba(8,10,15,0.08)_0%,rgba(8,10,15,0.86)_100%)]" />
+        <HeroBackdrop media={heroMedia} />
 
         <div className="relative mx-auto flex min-h-[620px] max-w-6xl flex-col justify-end px-4 pb-12 pt-24 sm:px-6">
           <Badge tone="accent">Game hub foundation</Badge>
